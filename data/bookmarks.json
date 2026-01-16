@@ -1,20 +1,35 @@
 {
   "categories": [
     {
-      "id": "2aa6a77291ba8819bc5b082ec",
-      "name": "学习",
-      "collapsed": false
-    },
-    {
-      "id": "468923100e7c19bc5b082ec",
-      "name": "工具",
-      "collapsed": false
-    },
-    {
-      "id": "51716c7abdbc3819bc5b082ec",
-      "name": "金融",
+      "id": "grad-portal-2026",
+      "name": "研究生申请 Portal（2026 Fall）",
       "collapsed": false
     }
   ],
-  "sites": []
+  "sites": [
+    {
+      "id": "uw-app",
+      "name": "University of Washington – Graduate Application",
+      "url": "https://apply.grad.uw.edu/account/login",
+      "desc": "UW 研究生申请系统（查看状态 / 提交材料）",
+      "catId": "grad-portal-2026",
+      "createdAt": 1760000000000
+    },
+    {
+      "id": "columbia-sps-app",
+      "name": "Columbia SPS – Application Portal",
+      "url": "https://apply.sps.columbia.edu/account/login",
+      "desc": "哥伦比亚大学 SPS 学院研究生申请系统",
+      "catId": "grad-portal-2026",
+      "createdAt": 1760000000001
+    },
+    {
+      "id": "ucla-app",
+      "name": "UCLA – Graduate Application",
+      "url": "https://apply.grad.ucla.edu/account/login",
+      "desc": "UCLA 研究生申请与材料提交入口",
+      "catId": "grad-portal-2026",
+      "createdAt": 1760000000002
+    }
+  ]
 }

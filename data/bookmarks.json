@@ -1,0 +1,20 @@
+{
+  "categories": [
+    {
+      "id": "2aa6a77291ba8819bc5b082ec",
+      "name": "学习",
+      "collapsed": false
+    },
+    {
+      "id": "468923100e7c19bc5b082ec",
+      "name": "工具",
+      "collapsed": false
+    },
+    {
+      "id": "51716c7abdbc3819bc5b082ec",
+      "name": "金融",
+      "collapsed": false
+    }
+  ],
+  "sites": []
+}

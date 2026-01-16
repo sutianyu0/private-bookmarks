@@ -1,1692 +1,287 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
   <title>我的私人书签页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    :root{
-      --bg:#0b1220;
-      --card:#111b2e;
-      --muted:#92a3c6;
-      --text:#eaf0ff;
-      --line:#223255;
-      --accent:#6aa6ff;
-      --accent2:#7cffc4;
-      --danger:#ff6a6a;
-      --shadow: 0 10px 25px rgba(0,0,0,.35);
-      --radius:16px;
-      --gap:14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(106,166,255,.18), transparent 50%),
-                  radial-gradient(900px 500px at 80% 10%, rgba(124,255,196,.12), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-    }
-    a{color:inherit; text-decoration:none}
-    .wrap{max-width:1150px; margin:0 auto; padding:28px 18px 60px}
-    header{
-      display:flex; gap:16px; align-items:flex-start; justify-content:space-between;
-      margin-bottom:18px;
-    }
-    .title{
-      display:flex; flex-direction:column; gap:6px;
-    }
-    .title h1{
-      margin:0;
-      font-size:20px;
-      letter-spacing:.2px;
-    }
-    .title p{
-      margin:0;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.35;
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(120deg, #0f172a, #020617);
+      color: #e5e7eb;
     }
 
-    .toolbar{
-      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end;
+    header {
+      padding: 24px 32px;
     }
 
-    .search{
-      display:flex; align-items:center; gap:10px;
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:999px;
-      padding:10px 12px;
-      min-width:280px;
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-    }
-    .search input{
-      width:100%;
-      background:transparent;
-      border:none;
-      outline:none;
-      color:var(--text);
-      font-size:14px;
-    }
-    .pill{
-      font-size:12px;
-      color:var(--muted);
-      padding:4px 8px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:999px;
-      background:rgba(255,255,255,.03);
-      user-select:none;
-      cursor:pointer;
-    }
-    .btn{
-      border:none;
-      border-radius:999px;
-      padding:10px 12px;
-      font-size:13px;
-      color:var(--text);
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-      cursor:pointer;
-      transition:transform .04s ease, background .15s ease, border-color .15s ease;
-      user-select:none;
-    }
-    .btn:hover{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.18);}
-    .btn:active{ transform:scale(.98);}
-    .btn.primary{
-      background:linear-gradient(135deg, rgba(106,166,255,.35), rgba(124,255,196,.25));
-      border-color:rgba(106,166,255,.35);
-    }
-    .btn:disabled{opacity:.55; cursor:not-allowed;}
-
-    .btn.danger{
-      background:rgba(255,106,106,.12);
-      border-color:rgba(255,106,106,.25);
-      color:#ffd7d7;
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
     }
 
-    .stats{
-      display:flex; gap:10px; flex-wrap:wrap;
-      margin:10px 0 18px;
-      color:var(--muted);
-      font-size:12px;
-    }
-    .stats code{
-      font-family:var(--mono);
-      color:#cfe0ff;
-      background:rgba(255,255,255,.04);
-      padding:2px 6px;
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:8px;
+    .sub {
+      color: #94a3b8;
+      font-size: 14px;
     }
 
-    .grid{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
+    .container {
+      padding: 0 32px 120px;
     }
 
-    .cat{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .cat-header{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 14px 12px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
-      gap:12px;
-    }
-    .cat-left{
-      display:flex; align-items:center; gap:10px; min-width:0;
-    }
-    .caret{
-      width:28px; height:28px; border-radius:10px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      display:grid; place-items:center;
-      cursor:pointer;
-      user-select:none;
-    }
-    .caret span{
-      display:inline-block;
-      transform:rotate(0deg);
-      transition:transform .18s ease;
-    }
-    .cat.collapsed .caret span{ transform:rotate(-90deg); }
-
-    .cat-name{
-      display:flex; flex-direction:column; gap:2px; min-width:0;
-    }
-    .cat-name strong{
-      font-size:14px;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .cat-name small{
-      color:var(--muted);
-      font-size:12px;
+    .category {
+      margin-top: 28px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 20px;
     }
 
-    .cat-actions{
-      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+    .category h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
     }
 
-    .sites{
-      padding:14px;
-      display:grid;
-      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-      gap:12px;
-    }
-    .cat.collapsed .sites{ display:none; }
-
-    .card{
-      background:rgba(17,27,46,.75);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;
-      padding:12px;
-      transition:transform .08s ease, border-color .15s ease, background .15s ease;
-      position:relative;
-      overflow:hidden;
-    }
-    .card:hover{
-      transform:translateY(-1px);
-      border-color:rgba(106,166,255,.35);
-      background:rgba(17,27,46,.92);
-    }
-    .card .top{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-    }
-    .card h3{
-      margin:0;
-      font-size:14px;
-      line-height:1.25;
-    }
-    .card p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.35;
-      min-height:32px;
-    }
-    .url{
-      margin-top:10px;
-      font-family:var(--mono);
-      font-size:11px;
-      color:#bcd1ff;
-      opacity:.9;
-      word-break:break-all;
-      padding:8px 9px;
-      border-radius:10px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.07);
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
     }
 
-    .mini-actions{
-      display:flex; gap:6px; flex-shrink:0;
-    }
-    .iconbtn{
-      width:30px; height:30px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      cursor:pointer;
-      display:grid; place-items:center;
-      color:var(--muted);
-    }
-    .iconbtn:hover{ color:var(--text); border-color:rgba(255,255,255,.18); background:rgba(255,255,255,.06); }
-    .iconbtn.danger{ border-color:rgba(255,106,106,.25); color:#ffb9b9; background:rgba(255,106,106,.08); }
-
-    /* 底部大“进入网站”按钮 */
-    .openbig{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      width:100%;
-      margin-top:10px;
-      padding:12px 12px;
-      border-radius:12px;
-      border:1px solid rgba(106,166,255,.35);
-      background:linear-gradient(135deg, rgba(106,166,255,.28), rgba(124,255,196,.18));
-      color:var(--text);
-      font-size:14px;
-      font-weight:600;
-      cursor:pointer;
-      user-select:none;
-    }
-    .openbig:hover{
-      border-color:rgba(106,166,255,.55);
-      background:linear-gradient(135deg, rgba(106,166,255,.34), rgba(124,255,196,.22));
-    }
-    .openbig:active{
-      transform:scale(.99);
+    .card {
+      background: rgba(15,23,42,0.9);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
-    dialog{
-      border:none;
-      border-radius:18px;
-      background:#0f1830;
-      color:var(--text);
-      width:min(560px, 92vw);
-      box-shadow: 0 20px 55px rgba(0,0,0,.55);
-      padding:0;
-    }
-    dialog::backdrop{ background:rgba(0,0,0,.55); }
-    .modal{
-      padding:14px 14px 12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
-    }
-    .modal h2{ margin:0; font-size:14px; }
-    .modal .close{
-      width:34px; height:34px; border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      cursor:pointer; color:var(--muted);
-      display:grid; place-items:center;
-    }
-    .modal .close:hover{ color:var(--text); }
-
-    .form{
-      padding:14px;
-      display:grid;
-      gap:10px;
-    }
-    label{ font-size:12px; color:var(--muted); display:block; margin:2px 0 6px; }
-    input, textarea, select{
-      width:100%;
-      padding:10px 10px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      color:var(--text);
-      outline:none;
-      font-size:13px;
-    }
-    textarea{ min-height:70px; resize:vertical; }
-    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    .foot{
-      padding:12px 14px 14px;
-      border-top:1px solid rgba(255,255,255,.08);
-      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
-    }
-    .hint{
-      font-size:12px; color:var(--muted);
-      padding:0 14px 10px;
-      line-height:1.35;
-    }
-    .toast{
-      position:fixed;
-      left:50%;
-      bottom:18px;
-      transform:translateX(-50%);
-      background:rgba(15,24,48,.92);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:999px;
-      padding:10px 14px;
-      color:var(--text);
-      font-size:13px;
-      box-shadow: 0 18px 45px rgba(0,0,0,.45);
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .18s ease, transform .18s ease;
-    }
-    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-3px); }
-
-    .kbd{
-      font-family:var(--mono);
-      font-size:11px;
-      padding:2px 6px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:7px;
-      background:rgba(255,255,255,.04);
-      color:#cfe0ff;
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
     }
 
-    @media (max-width:700px){
-      header{ flex-direction:column; align-items:stretch; }
-      .toolbar{ justify-content:stretch; }
-      .search{ min-width:unset; width:100%; }
-      .row{ grid-template-columns:1fr; }
+    .card p {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: #cbd5f5;
+      line-height: 1.4;
     }
-  
-    /* --------- Assistant UI --------- */
-    .fab{
-      position:fixed; right:18px; bottom:18px;
-      width:54px; height:54px; border-radius:18px;
-      border:1px solid rgba(255,255,255,.14);
-      background:linear-gradient(135deg, rgba(106,166,255,.32), rgba(124,255,196,.20));
-      box-shadow: 0 18px 55px rgba(0,0,0,.45);
-      display:grid; place-items:center;
-      cursor:pointer; user-select:none;
-      z-index:50;
-    }
-    .fab:active{ transform:scale(.98); }
-    .assistant{
-      position:fixed; right:18px; bottom:84px;
-      width:min(420px, calc(100vw - 36px));
-      height:min(560px, calc(100vh - 120px));
-      background:#0f1830;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      box-shadow: 0 22px 70px rgba(0,0,0,.55);
-      overflow:hidden;
-      display:none;
-      z-index:50;
-    }
-    .assistant.show{ display:flex; flex-direction:column; }
-    .assistant-head{
-      padding:12px 12px 10px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent);
-    }
-    .assistant-head strong{ font-size:13px; }
-    .assistant-head small{ color:var(--muted); font-size:12px; }
-    .assistant-body{
-      padding:10px 12px;
-      display:flex; flex-direction:column; gap:10px;
-      overflow:auto;
-      flex:1;
-    }
-    .msg{
-      display:flex; gap:8px; align-items:flex-start;
-    }
-    .bubble{
-      max-width:84%;
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-      font-size:13px;
-      line-height:1.35;
-      white-space:pre-wrap;
-      word-break:break-word;
-    }
-    .msg.user{ justify-content:flex-end; }
-    .msg.user .bubble{
-      background:rgba(106,166,255,.14);
-      border-color:rgba(106,166,255,.22);
-    }
-    .msg.assistant .bubble{
-      background:rgba(124,255,196,.08);
-      border-color:rgba(124,255,196,.18);
-    }
-    .assistant-foot{
-      padding:10px 12px 12px;
-      border-top:1px solid rgba(255,255,255,.08);
-      display:flex; gap:8px; align-items:flex-end;
-    }
-    .assistant-foot textarea{
-      flex:1;
-      min-height:44px; max-height:140px;
-      resize:none;
-      border-radius:14px;
-    }
-    .assistant-actions{
-      display:flex; gap:8px; flex-wrap:wrap;
-      padding:0 12px 12px;
-      border-top:1px dashed rgba(255,255,255,.08);
-      background:rgba(255,255,255,.02);
-    }
-    .assistant-actions .btn{ padding:9px 11px; }
-    .proposal-card{
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.03);
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.35;
-    }
-    .proposal-card strong{ color:var(--text); font-size:12px; }
 
+    .card a {
+      margin-top: auto;
+      display: inline-block;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #22d3ee);
+      color: #020617;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Assistant UI */
+    .assistant-btn {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #22d3ee);
+      color: #020617;
+      font-size: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(0,0,0,.4);
+    }
+
+    .assistant-panel {
+      position: fixed;
+      right: 20px;
+      bottom: 90px;
+      width: 360px;
+      max-height: 70vh;
+      background: rgba(2,6,23,0.98);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .assistant-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      font-weight: 600;
+    }
+
+    .assistant-messages {
+      padding: 14px;
+      overflow-y: auto;
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .msg {
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .msg.user {
+      color: #93c5fd;
+    }
+
+    .msg.ai {
+      color: #e5e7eb;
+    }
+
+    .assistant-input {
+      border-top: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .assistant-input textarea {
+      flex: 1;
+      resize: none;
+      border-radius: 10px;
+      border: none;
+      padding: 8px 10px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .assistant-input button {
+      border: none;
+      border-radius: 10px;
+      padding: 0 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #3b82f6, #22d3ee);
+      color: #020617;
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">
-        <h1>我的私人书签页</h1>
-        <p>本地单文件 · 仅你可见 · 自动保存到浏览器本地（localStorage） · 支持搜索、分类、导入/导出</p>
-      </div>
+  <header>
+    <h1>我的私人书签页</h1>
+    <div class="sub">本地保存 · GitHub 同步 · AI 助手可协助整理（需确认）</div>
+  </header>
 
-      <div class="toolbar">
-        <div class="search" title="快捷键：/ 聚焦搜索，Esc 清空">
-          <span style="color:var(--muted);font-family:var(--mono);font-size:12px;">/</span>
-          <input id="q" placeholder="搜索：网站名 / 描述 / URL / 分类" autocomplete="off" />
-          <span class="pill" id="clearBtn">清空</span>
+  <div class="container">
+    <div class="category">
+      <h2>研究生申请 Portal（2026 Fall）</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Columbia SPS – Application Portal</h3>
+          <p>哥伦比亚大学 SPS 学院研究生申请系统</p>
+          <a href="https://apply.sps.columbia.edu/account/login" target="_blank">进入网站 ↗</a>
         </div>
-        <button class="btn primary" id="addSiteBtn">+ 添加网站</button>
-        <button class="btn" id="addCatBtn">+ 添加分类</button>
-        <button class="btn" id="exportBtn">导出 JSON</button>
-        <button class="btn" id="importBtn">导入 JSON</button>
-        <button class="btn" id="ghSyncBtn">GitHub 同步</button>
-        <button class="btn" id="ghSettingsBtn">GitHub 设置</button>
-        <button class="btn danger" id="resetBtn">重置</button>
-      </div>
-    </header>
 
-    <div class="stats" id="stats"></div>
-    <div class="grid" id="grid"></div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <!-- Modal: Add/Edit Site -->
-  <dialog id="siteDialog">
-    <div class="modal">
-      <h2 id="siteDialogTitle">添加网站</h2>
-      <button class="close" id="closeSiteDialog" aria-label="close">✕</button>
-    </div>
-    <div class="hint">提示：URL 记得带 https://。可以写描述方便搜索。</div>
-    <form class="form" id="siteForm" method="dialog">
-      <input type="hidden" id="siteId" />
-      <div class="row">
-        <div>
-          <label>网站名</label>
-          <input id="siteName" required placeholder="例如：GitHub" />
+        <div class="card">
+          <h3>UCLA – Graduate Application</h3>
+          <p>UCLA 研究生申请与材料提交入口</p>
+          <a href="https://apply.grad.ucla.edu/account/login" target="_blank">进入网站 ↗</a>
         </div>
-        <div>
-          <label>分类</label>
-          <select id="siteCat"></select>
+
+        <div class="card">
+          <h3>University of Washington – Graduate Application</h3>
+          <p>UW 研究生申请系统（查看状态 / 提交材料）</p>
+          <a href="https://apply.grad.uw.edu/account/login" target="_blank">进入网站 ↗</a>
         </div>
       </div>
-      <div>
-        <label>URL</label>
-        <input id="siteUrl" required placeholder="https://..." />
-      </div>
-      <div>
-        <label>描述（可选）</label>
-        <textarea id="siteDesc" placeholder="例如：代码托管、开源项目"></textarea>
-      </div>
-      <div class="foot">
-        <button class="btn" value="cancel">取消</button>
-        <button class="btn primary" id="saveSiteBtn" value="default">保存</button>
-      </div>
-    </form>
-  </dialog>
-
-  <!-- Modal: Add/Edit Category -->
-  <dialog id="catDialog">
-    <div class="modal">
-      <h2 id="catDialogTitle">添加分类</h2>
-      <button class="close" id="closeCatDialog" aria-label="close">✕</button>
-    </div>
-    <div class="hint">分类用于整理书签。你可以随时改名或删除（删除会一起删除该分类下的网站）。</div>
-    <form class="form" id="catForm" method="dialog">
-      <input type="hidden" id="catId" />
-      <div>
-        <label>分类名</label>
-        <input id="catName" required placeholder="例如：学习 / 金融 / 工具" />
-      </div>
-      <div class="foot">
-        <button class="btn" value="cancel">取消</button>
-        <button class="btn primary" id="saveCatBtn" value="default">保存</button>
-      </div>
-    </form>
-  </dialog>
-
-
-  <!-- Modal: GitHub Settings -->
-  <dialog id="ghDialog">
-    <div class="modal">
-      <h2>GitHub 同步设置</h2>
-      <button class="close" id="closeGhDialog" aria-label="close">✕</button>
-    </div>
-    <div class="hint">
-      说明：此页面是纯前端网页，若要把数据写入 GitHub，需要你提供一个 GitHub Personal Access Token（PAT）。
-      为安全起见，你可以选择不保存 token（每次打开网页再输入一次）。
-    </div>
-    <form class="form" id="ghForm" method="dialog">
-      <div class="row">
-        <div>
-          <label>Owner（用户名或组织）</label>
-          <input id="ghOwner" placeholder="例如：tysu0506" />
-        </div>
-        <div>
-          <label>Repo（仓库名）</label>
-          <input id="ghRepo" placeholder="例如：private-bookmarks" />
-        </div>
-      </div>
-      <div class="row">
-        <div>
-          <label>Branch（分支）</label>
-          <input id="ghBranch" placeholder="main" />
-        </div>
-        <div>
-          <label>Path（JSON 文件路径）</label>
-          <input id="ghPath" placeholder="data/bookmarks.json" />
-        </div>
-      </div>
-      <div>
-        <label>Token（Fine-grained PAT，需对该仓库 Contents 读写权限）</label>
-        <input id="ghToken" type="password" placeholder="ghp_... 或 github_pat_..." />
-      </div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <label style="margin:0; display:flex; gap:8px; align-items:center; cursor:pointer; color:var(--muted);">
-          <input type="checkbox" id="ghRemember" style="width:auto; transform: translateY(1px);" />
-          记住 token（保存到本机 localStorage，不建议在公共电脑开启）
-        </label>
-        <span style="color:var(--muted);font-size:12px;">建议：token 不保存时会存到 sessionStorage（关掉标签页即清空）</span>
-      </div>
-      <div class="foot">
-        <button class="btn" value="cancel">取消</button>
-        <button class="btn primary" id="saveGhBtn" value="default">保存设置</button>
-      </div>
-    </form>
-  </dialog>
-
-
-  <!-- Hidden file input for import -->
-  <input type="file" id="fileInput" accept="application/json" style="display:none"/>
-
-  <!-- Assistant (Chat) UI -->
-  <div class="fab" id="assistantFab" title="打开助手">🤖</div>
-  <div class="assistant" id="assistantPanel" aria-live="polite">
-    <div class="assistant-head">
-      <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
-        <strong>书签助手</strong>
-        <small id="assistantSub">先提出方案，再由你确认执行</small>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="iconbtn" id="assistantUndoBtn" title="撤回上一次应用" style="width:34px;height:34px;border-radius:12px;">↩</button>
-        <button class="close" id="assistantClose" title="关闭" style="width:34px;height:34px;border-radius:12px;">✕</button>
-      </div>
-    </div>
-    <div class="assistant-body" id="assistantBody"></div>
-    <div class="assistant-actions">
-      <button class="btn" id="assistantReviewBtn" disabled>查看变更提案</button>
-      <button class="btn primary" id="assistantApplyBtn" disabled>确认并应用</button>
-      <button class="btn" id="assistantDiscardBtn" disabled>丢弃提案</button>
-    </div>
-    <div class="assistant-foot">
-      <textarea id="assistantInput" placeholder="例如：把这三个学校 portal 归到“研究生申请 Portal(2026 Fall)”并给每个链接加一句描述"></textarea>
-      <button class="btn primary" id="assistantSend">发送</button>
     </div>
   </div>
 
-  <!-- Modal: Proposal Review -->
-  <dialog id="proposalDialog">
-    <div class="modal">
-      <h2>变更提案（需要你确认）</h2>
-      <button class="close" id="closeProposalDialog" aria-label="close">✕</button>
-    </div>
-    <div class="hint">勾选你想执行的变更，然后点击「确认并应用」。应用后可用「↩ 撤回」恢复。</div>
-    <div class="form" id="proposalList" style="gap:8px;"></div>
-    <div class="foot">
-      <button class="btn" id="proposalCancelBtn">关闭</button>
-      <button class="btn primary" id="proposalApplyBtn">确认并应用</button>
-    </div>
-  </dialog>
+  <!-- Assistant -->
+  <div class="assistant-btn" id="assistantBtn">🤖</div>
 
+  <div class="assistant-panel" id="assistantPanel">
+    <div class="assistant-header">书签 AI 助手</div>
+    <div class="assistant-messages" id="messages">
+      <div class="msg ai">
+        你好 👋<br/>
+        你可以用自然语言让我帮你整理、添加或重命名书签。<br/>
+        <br/>
+        第一次请先输入：<br/>
+        <code>/endpoint https://你的-worker.workers.dev</code>
+      </div>
+    </div>
+    <div class="assistant-input">
+      <textarea id="input" rows="2" placeholder="输入指令或问题，Enter 发送"></textarea>
+      <button id="sendBtn">发送</button>
+    </div>
+  </div>
 
   <script>
-    // --------- Data model ----------
-    // state = {
-    //   categories: [{id, name, collapsed}],
-    //   sites: [{id, name, url, desc, catId, createdAt}],
-    // }
-    const STORAGE_KEY = "private_bookmarks_v1";
-
-    const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
-
-    const defaultState = () => ({
-      categories: [
-        { id: uid(), name: "学习", collapsed: false },
-        { id: uid(), name: "工具", collapsed: false },
-        { id: uid(), name: "金融", collapsed: false },
-      ],
-      sites: []
-    });
-
-    function loadState(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return defaultState();
-        const parsed = JSON.parse(raw);
-        if(!parsed || !Array.isArray(parsed.categories) || !Array.isArray(parsed.sites)) return defaultState();
-        // small repair: ensure fields exist
-        parsed.categories = parsed.categories.map(c => ({
-          id: c.id || uid(),
-          name: c.name || "未命名",
-          collapsed: !!c.collapsed
-        }));
-        parsed.sites = parsed.sites.map(s => ({
-          id: s.id || uid(),
-          name: s.name || "未命名",
-          url: s.url || "",
-          desc: s.desc || "",
-          catId: s.catId || (parsed.categories[0]?.id ?? ""),
-          createdAt: s.createdAt || Date.now()
-        })).filter(s => s.url);
-        // ensure at least one category
-        if(parsed.categories.length === 0) parsed.categories.push({id: uid(), name:"默认", collapsed:false});
-        return parsed;
-      }catch(e){
-        return defaultState();
-      }
-    }
-
-    function saveState(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      // If GitHub sync configured, push changes (debounced)
-      scheduleGhPush();
-    }
-
-    let pcb = null; // for import restore
-    let state = loadState();
-
-    // --------- UI refs ----------
-    const grid = document.getElementById("grid");
-    const q = document.getElementById("q");
-    const stats = document.getElementById("stats");
-    const toast = document.getElementById("toast");
-
-    const addSiteBtn = document.getElementById("addSiteBtn");
-    const addCatBtn = document.getElementById("addCatBtn");
-    const exportBtn = document.getElementById("exportBtn");
-    const importBtn = document.getElementById("importBtn");
-    const ghSyncBtn = document.getElementById("ghSyncBtn");
-    const ghSettingsBtn = document.getElementById("ghSettingsBtn");
-
-    const ghDialog = document.getElementById("ghDialog");
-    const closeGhDialog = document.getElementById("closeGhDialog");
-    const ghForm = document.getElementById("ghForm");
-    const ghOwner = document.getElementById("ghOwner");
-    const ghRepo = document.getElementById("ghRepo");
-    const ghBranch = document.getElementById("ghBranch");
-    const ghPath = document.getElementById("ghPath");
-    const ghToken = document.getElementById("ghToken");
-    const ghRemember = document.getElementById("ghRemember");
-
-    const resetBtn = document.getElementById("resetBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const fileInput = document.getElementById("fileInput");
-
-    const siteDialog = document.getElementById("siteDialog");
-    const siteDialogTitle = document.getElementById("siteDialogTitle");
-    const closeSiteDialog = document.getElementById("closeSiteDialog");
-    const siteForm = document.getElementById("siteForm");
-    const siteId = document.getElementById("siteId");
-    const siteName = document.getElementById("siteName");
-    const siteCat = document.getElementById("siteCat");
-    const siteUrl = document.getElementById("siteUrl");
-    const siteDesc = document.getElementById("siteDesc");
-
-    const catDialog = document.getElementById("catDialog");
-    const catDialogTitle = document.getElementById("catDialogTitle");
-    const closeCatDialog = document.getElementById("closeCatDialog");
-    const catForm = document.getElementById("catForm");
-    const catId = document.getElementById("catId");
-    const catName = document.getElementById("catName");
-
-    // --------- helpers ----------
-    function showToast(msg){
-      toast.textContent = msg;
-      toast.classList.add("show");
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(()=>toast.classList.remove("show"), 1600);
-    }
-
-    function normalizeUrl(u){
-      u = (u || "").trim();
-      if(!u) return "";
-      if(!/^https?:\/\//i.test(u)) u = "https://" + u;
-      return u;
-    }
-
-
-    // --------- GitHub Sync (optional) ----------
-    // Pure frontend cannot "log into GitHub" securely. We use PAT (token) you provide.
-    // Config is stored locally in localStorage (token optional). Data syncs by reading/writing a JSON file in your repo via GitHub REST API.
-    const GH_CFG_KEY = "private_bookmarks_github_cfg_v1";
-    let ghSyncState = { status: "未配置", last: "" };
-    let ghPushTimer = null;
-    let ghRemoteSha = null; // for update file contents
-
-    function getGhCfg(){
-      try{
-        const raw = localStorage.getItem(GH_CFG_KEY);
-        return raw ? JSON.parse(raw) : null;
-      }catch(e){ return null; }
-    }
-    function setGhCfg(cfg){
-      localStorage.setItem(GH_CFG_KEY, JSON.stringify(cfg));
-    }
-    function getToken(cfg){
-      if(!cfg) return "";
-      if(cfg.rememberToken) return (cfg.token || "");
-      // session only
-      return sessionStorage.getItem("private_bookmarks_gh_token") || "";
-    }
-    function setToken(cfg, token){
-      if(!cfg) return;
-      if(cfg.rememberToken){
-        cfg.token = token || "";
-        setGhCfg(cfg);
-      }else{
-        sessionStorage.setItem("private_bookmarks_gh_token", token || "");
-      }
-    }
-    function ghApiHeaders(token){
-      const h = { "Accept": "application/vnd.github+json" };
-      if(token) h["Authorization"] = "Bearer " + token;
-      return h;
-    }
-
-    // Base64 helpers that correctly preserve Unicode (e.g., Chinese)
-    function b64EncodeUnicode(str){
-      return btoa(unescape(encodeURIComponent(str)));
-    }
-    function b64DecodeUnicode(b64){
-      return decodeURIComponent(escape(atob(b64)));
-    }
-    function setGhStatus(status, last=""){
-      ghSyncState.status = status;
-      ghSyncState.last = last;
-      // render stats line by re-rendering stats only (render() calls updateStats)
-      updateStats(getShownCountForStats());
-    }
-    function getShownCountForStats(){
-      // quick estimate: if search active, render() recomputes; here just show total sites
-      return state.sites.length;
-    }
-
-    async function ghPull(){
-      const cfg = getGhCfg();
-      if(!cfg || !cfg.owner || !cfg.repo || !cfg.branch || !cfg.path){
-        setGhStatus("未配置");
-        return;
-      }
-      const token = getToken(cfg);
-      if(!token){
-        setGhStatus("缺少 token（点 GitHub 设置）");
-        return;
-      }
-      setGhStatus("同步中…");
-      const url = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${cfg.path}?ref=${encodeURIComponent(cfg.branch)}`;
-      const res = await fetch(url, { headers: ghApiHeaders(token) });
-      if(res.status === 404){
-        // remote file not exist yet; push current local state to create
-        ghRemoteSha = null;
-        setGhStatus("远端无文件，准备创建");
-        await ghPush(true);
-        return;
-      }
-      if(!res.ok){
-        const t = await res.text();
-        setGhStatus("同步失败", `HTTP ${res.status}`);
-        console.error("GitHub pull failed:", res.status, t);
-        return;
-      }
-      const data = await res.json();
-      ghRemoteSha = data.sha || null;
-      const content = data.content ? b64DecodeUnicode(data.content.replace(/\n/g,"")) : "";
-      let remoteState = null;
-      try{ remoteState = JSON.parse(content); }catch(e){}
-      if(!remoteState || !Array.isArray(remoteState.categories) || !Array.isArray(remoteState.sites)){
-        setGhStatus("远端 JSON 格式不对");
-        return;
-      }
-      // Replace local state with remote (simplest + deterministic). Backup current to allow undo by export.
-      state = remoteState;
-      // normalize similar to import
-      state.categories = state.categories.map(c => ({
-        id: c.id || uid(),
-        name: c.name || "未命名",
-        collapsed: !!c.collapsed
-      }));
-      if(state.categories.length===0) state.categories.push({id:uid(), name:"默认", collapsed:false});
-      const catIds = new Set(state.categories.map(c=>c.id));
-      state.sites = state.sites.map(s => ({
-        id: s.id || uid(),
-        name: s.name || "未命名",
-        url: normalizeUrl(s.url || ""),
-        desc: s.desc || "",
-        catId: catIds.has(s.catId) ? s.catId : state.categories[0].id,
-        createdAt: s.createdAt || Date.now()
-      })).filter(s=>s.url);
-
-      saveState();
-      render();
-      setGhStatus("已同步", new Date().toLocaleString());
-      showToast("GitHub 同步完成");
-    }
-
-    async function ghPush(isCreate=false){
-      const cfg = getGhCfg();
-      if(!cfg || !cfg.owner || !cfg.repo || !cfg.branch || !cfg.path){
-        setGhStatus("未配置");
-        return;
-      }
-      const token = getToken(cfg);
-      if(!token){
-        setGhStatus("缺少 token（点 GitHub 设置）");
-        return;
-      }
-      setGhStatus("上传中…");
-      const apiUrl = `https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${cfg.path}`;
-
-      const payload = {
-        message: `Update bookmarks (${new Date().toISOString()})`,
-        content: b64EncodeUnicode(JSON.stringify(state, null, 2)),
-        branch: cfg.branch
-      };
-      if(ghRemoteSha && !isCreate) payload.sha = ghRemoteSha;
-
-      const res = await fetch(apiUrl, {
-        method: "PUT",
-        headers: { ...ghApiHeaders(token), "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
-      if(!res.ok){
-        const t = await res.text();
-        setGhStatus("上传失败", `HTTP ${res.status}`);
-        console.error("GitHub push failed:", res.status, t);
-        return;
-      }
-      const out = await res.json();
-      ghRemoteSha = out?.content?.sha || ghRemoteSha;
-      setGhStatus("已上传", new Date().toLocaleString());
-    }
-
-    function scheduleGhPush(){
-      const cfg = getGhCfg();
-      if(!cfg) return;
-      const token = getToken(cfg);
-      if(!cfg.owner || !cfg.repo || !cfg.branch || !cfg.path || !token) return;
-
-      clearTimeout(ghPushTimer);
-      ghPushTimer = setTimeout(()=>{
-        ghPush(false).catch(err=>{
-          console.error(err);
-          setGhStatus("上传失败");
-        });
-      }, 1200);
-    }
-
-
-    function matches(site, catName, query){
-      if(!query) return true;
-      const s = (site.name + " " + site.desc + " " + site.url + " " + (catName||"")).toLowerCase();
-      return s.includes(query.toLowerCase());
-    }
-
-    function updateStats(filteredCount){
-      const totalSites = state.sites.length;
-      const totalCats = state.categories.length;
-      const shown = filteredCount;
-      const gh = getGhCfg();
-      const ghText = ghSyncState.status + (ghSyncState.last ? ` · ${ghSyncState.last}` : "");
-      stats.innerHTML = `
-        <span>分类 <code>${totalCats}</code></span>
-        <span>网站 <code>${totalSites}</code></span>
-        <span>当前显示 <code>${shown}</code></span>
-        <span style="margin-left:auto;color:var(--muted)">GitHub：<code>${ghText}</code></span>
-      `;
-    }
-
-    function fillCategorySelect(selectedId){
-      siteCat.innerHTML = "";
-      state.categories.forEach(c=>{
-        const opt = document.createElement("option");
-        opt.value = c.id;
-        opt.textContent = c.name;
-        if(c.id === selectedId) opt.selected = true;
-        siteCat.appendChild(opt);
-      });
-    }
-
-    // --------- render ----------
-    function render(){
-      const query = q.value.trim();
-      grid.innerHTML = "";
-
-      // compute filtered counts for stats
-      let shownSites = 0;
-
-      state.categories.forEach(cat=>{
-        const catSites = state.sites
-          .filter(s => s.catId === cat.id)
-          .filter(s => matches(s, cat.name, query))
-          .sort((a,b)=> a.name.localeCompare(b.name, "zh-Hans-CN"));
-
-        shownSites += catSites.length;
-
-        // If query active and category has no results, hide category block
-        if(query && catSites.length === 0) return;
-
-        const wrap = document.createElement("div");
-        wrap.className = "cat" + (cat.collapsed ? " collapsed" : "");
-
-        const header = document.createElement("div");
-        header.className = "cat-header";
-
-        const left = document.createElement("div");
-        left.className = "cat-left";
-
-        const caret = document.createElement("div");
-        caret.className = "caret";
-        caret.innerHTML = "<span>▾</span>";
-        caret.title = "折叠/展开";
-        caret.onclick = ()=>{
-          cat.collapsed = !cat.collapsed;
-          saveState();
-          render();
-        };
-
-        const nameBox = document.createElement("div");
-        nameBox.className = "cat-name";
-        const count = state.sites.filter(s=>s.catId===cat.id).length;
-        const shownCount = catSites.length;
-
-        nameBox.innerHTML = `
-          <strong>${escapeHtml(cat.name)}</strong>
-          <small>${query ? `匹配 ${shownCount} / 共 ${count}` : `共 ${count} 个网站`}</small>
-        `;
-
-        left.appendChild(caret);
-        left.appendChild(nameBox);
-
-        const actions = document.createElement("div");
-        actions.className = "cat-actions";
-
-        const addBtn = document.createElement("button");
-        addBtn.className = "btn";
-        addBtn.textContent = "+ 本分类添加";
-        addBtn.onclick = ()=> openSiteDialog({catId: cat.id});
-
-        const editBtn = document.createElement("button");
-        editBtn.className = "btn";
-        editBtn.textContent = "改名";
-        editBtn.onclick = ()=> openCatDialog(cat);
-
-        const delBtn = document.createElement("button");
-        delBtn.className = "btn danger";
-        delBtn.textContent = "删除分类";
-        delBtn.onclick = ()=>{
-          const ok = confirm(`确定删除分类「${cat.name}」吗？该分类下的网站也会一起删除。`);
-          if(!ok) return;
-          // remove
-          state.sites = state.sites.filter(s=>s.catId!==cat.id);
-          state.categories = state.categories.filter(c=>c.id!==cat.id);
-          if(state.categories.length===0){
-            state.categories.push({id: uid(), name:"默认", collapsed:false});
-          }
-          saveState();
-          render();
-          showToast("已删除分类");
-        };
-
-        actions.appendChild(addBtn);
-        actions.appendChild(editBtn);
-        actions.appendChild(delBtn);
-
-        header.appendChild(left);
-        header.appendChild(actions);
-
-        const sites = document.createElement("div");
-        sites.className = "sites";
-
-        catSites.forEach(site=>{
-          const card = document.createElement("div");
-          card.className = "card";
-
-          const top = document.createElement("div");
-          top.className = "top";
-
-          const main = document.createElement("div");
-          main.style.minWidth = "0";
-          main.innerHTML = `
-            <h3 title="${escapeHtml(site.name)}">${escapeHtml(site.name)}</h3>
-            <p>${escapeHtml(site.desc || "（无描述）")}</p>
-          `;
-
-          const mini = document.createElement("div");
-          mini.className = "mini-actions";
-
-          // 右上角只保留：编辑 / 删除
-          const editS = document.createElement("button");
-          editS.className = "iconbtn";
-          editS.title = "编辑";
-          editS.textContent = "✎";
-          editS.onclick = ()=> openSiteDialog(site);
-
-          const delS = document.createElement("button");
-          delS.className = "iconbtn danger";
-          delS.title = "删除";
-          delS.textContent = "🗑";
-          delS.onclick = ()=>{
-            const ok = confirm(`删除网站「${site.name}」？`);
-            if(!ok) return;
-            state.sites = state.sites.filter(s=>s.id!==site.id);
-            saveState();
-            render();
-            showToast("已删除网站");
-          };
-
-          mini.appendChild(editS);
-          mini.appendChild(delS);
-
-          top.appendChild(main);
-          top.appendChild(mini);
-
-          const url = document.createElement("div");
-          url.className = "url";
-          url.textContent = site.url;
-
-          // 底部大按钮：进入网站
-          const openBig = document.createElement("a");
-          openBig.className = "openbig";
-          openBig.href = site.url;
-          openBig.target = "_blank";
-          openBig.rel = "noopener";
-          openBig.innerHTML = `进入网站 <span style="opacity:.85">↗</span>`;
-
-          card.appendChild(top);
-          card.appendChild(url);
-          card.appendChild(openBig);
-
-          sites.appendChild(card);
-        });
-
-        wrap.appendChild(header);
-        wrap.appendChild(sites);
-        grid.appendChild(wrap);
-      });
-
-      updateStats(shownSites);
-    }
-
-    function escapeHtml(str){
-      return String(str ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    // --------- dialogs ----------
-    function openSiteDialog(site){
-      const isEdit = !!(site && site.id);
-      siteDialogTitle.textContent = isEdit ? "编辑网站" : "添加网站";
-      siteId.value = isEdit ? site.id : "";
-      siteName.value = site?.name || "";
-      siteUrl.value = site?.url || "";
-      siteDesc.value = site?.desc || "";
-      fillCategorySelect(site?.catId || (state.categories[0]?.id ?? ""));
-      siteDialog.showModal();
-      setTimeout(()=>siteName.focus(), 50);
-    }
-
-    function openCatDialog(cat){
-      const isEdit = !!(cat && cat.id);
-      catDialogTitle.textContent = isEdit ? "编辑分类" : "添加分类";
-      catId.value = isEdit ? cat.id : "";
-      catName.value = cat?.name || "";
-      catDialog.showModal();
-      setTimeout(()=>catName.focus(), 50);
-    }
-
-    closeSiteDialog.onclick = ()=> siteDialog.close();
-    closeCatDialog.onclick = ()=> catDialog.close();
-
-    siteForm.addEventListener("submit", (e)=>{
-      e.preventDefault();
-      const id = siteId.value.trim();
-      const name = siteName.value.trim() || "未命名";
-      const url = normalizeUrl(siteUrl.value);
-      if(!url){
-        showToast("URL 不能为空");
-        return;
-      }
-      const desc = siteDesc.value.trim();
-      const catIdVal = siteCat.value;
-
-      if(id){
-        const s = state.sites.find(x=>x.id===id);
-        if(s){
-          s.name = name; s.url = url; s.desc = desc; s.catId = catIdVal;
-        }
-        showToast("已保存修改");
-      }else{
-        state.sites.push({ id: uid(), name, url, desc, catId: catIdVal, createdAt: Date.now() });
-        showToast("已添加网站");
-      }
-      saveState();
-      siteDialog.close();
-      render();
-    });
-
-    catForm.addEventListener("submit", (e)=>{
-      e.preventDefault();
-      const id = catId.value.trim();
-      const name = catName.value.trim() || "未命名";
-      if(id){
-        const c = state.categories.find(x=>x.id===id);
-        if(c) c.name = name;
-        showToast("已更新分类");
-      }else{
-        state.categories.push({ id: uid(), name, collapsed: false });
-        showToast("已添加分类");
-      }
-      saveState();
-      catDialog.close();
-      render();
-    });
-
-    // --------- top actions ----------
-    addSiteBtn.onclick = ()=> openSiteDialog({catId: state.categories[0]?.id});
-    addCatBtn.onclick = ()=> openCatDialog(null);
-
-    clearBtn.onclick = ()=>{
-      q.value = "";
-      render();
-      q.focus();
+    const btn = document.getElementById("assistantBtn");
+    const panel = document.getElementById("assistantPanel");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+    const messages = document.getElementById("messages");
+
+    let endpoint = localStorage.getItem("assistant_endpoint") || "";
+
+    btn.onclick = () => {
+      panel.style.display = panel.style.display === "flex" ? "none" : "flex";
+      panel.style.flexDirection = "column";
+      input.focus();
     };
 
-    exportBtn.onclick = ()=>{
-      const data = JSON.stringify(state, null, 2);
-      const blob = new Blob([data], {type:"application/json"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "my_bookmarks.json";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(a.href);
-      showToast("已导出 JSON");
-    };
-
-    importBtn.onclick = ()=> fileInput.click();
-
-
-    // GitHub UI
-    closeGhDialog.onclick = ()=> ghDialog.close();
-
-    function openGhDialog(){
-      const cfg = getGhCfg() || { owner:"", repo:"", branch:"main", path:"data/bookmarks.json", rememberToken:false };
-      ghOwner.value = cfg.owner || "";
-      ghRepo.value = cfg.repo || "";
-      ghBranch.value = cfg.branch || "main";
-      ghPath.value = cfg.path || "data/bookmarks.json";
-      ghRemember.checked = !!cfg.rememberToken;
-      // token: only fill if remembered
-      ghToken.value = cfg.rememberToken ? (cfg.token || "") : "";
-      ghDialog.showModal();
-      setTimeout(()=>ghOwner.focus(), 50);
+    function addMsg(text, cls) {
+      const div = document.createElement("div");
+      div.className = "msg " + cls;
+      div.innerHTML = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
     }
 
-    ghSettingsBtn.onclick = openGhDialog;
+    async function send() {
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      addMsg(text, "user");
 
-    ghForm.addEventListener("submit", (e)=>{
-      e.preventDefault();
-      const cfg = getGhCfg() || {};
-      cfg.owner = (ghOwner.value || "").trim();
-      cfg.repo = (ghRepo.value || "").trim();
-      cfg.branch = (ghBranch.value || "main").trim();
-      cfg.path = (ghPath.value || "data/bookmarks.json").trim();
-      cfg.rememberToken = !!ghRemember.checked;
-
-      const token = (ghToken.value || "").trim();
-      // Save cfg first (token handled separately)
-      if(cfg.rememberToken){
-        cfg.token = token;
-      }else{
-        cfg.token = "";
-      }
-      setGhCfg(cfg);
-      setToken(cfg, token);
-      ghDialog.close();
-      setGhStatus(cfg.owner && cfg.repo ? "已配置（可同步）" : "未配置");
-      showToast("GitHub 设置已保存");
-    });
-
-    ghSyncBtn.onclick = ()=>{
-      ghPull().catch(err=>{
-        console.error(err);
-        setGhStatus("同步失败");
-        showToast("GitHub 同步失败（查看控制台）");
-      });
-    };
-
-
-    fileInput.addEventListener("change", async ()=>{
-      const file = fileInput.files?.[0];
-      if(!file) return;
-      try{
-        const text = await file.text();
-        const parsed = JSON.parse(text);
-        if(!parsed || !Array.isArray(parsed.categories) || !Array.isArray(parsed.sites)){
-          alert("JSON 格式不对：需要包含 categories 和 sites 数组。");
-          return;
-        }
-        // backup for undo-ish
-        pcb = JSON.stringify(state);
-        state = parsed;
-        // normalize
-        state.categories = state.categories.map(c => ({
-          id: c.id || uid(),
-          name: c.name || "未命名",
-          collapsed: !!c.collapsed
-        }));
-        if(state.categories.length===0) state.categories.push({id:uid(), name:"默认", collapsed:false});
-        const catIds = new Set(state.categories.map(c=>c.id));
-        state.sites = state.sites.map(s => ({
-          id: s.id || uid(),
-          name: s.name || "未命名",
-          url: normalizeUrl(s.url || ""),
-          desc: s.desc || "",
-          catId: catIds.has(s.catId) ? s.catId : state.categories[0].id,
-          createdAt: s.createdAt || Date.now()
-        })).filter(s=>s.url);
-
-        saveState();
-        render();
-        showToast("已导入并保存");
-      }catch(err){
-        alert("导入失败：不是有效 JSON 或格式不正确。");
-      }finally{
-        fileInput.value = "";
-      }
-    });
-
-    resetBtn.onclick = ()=>{
-      const ok = confirm("确定重置吗？将清空所有分类和网站（恢复默认模板）。");
-      if(!ok) return;
-      state = defaultState();
-      saveState();
-      render();
-      showToast("已重置");
-    };
-
-    // search
-    q.addEventListener("input", ()=> render());
-
-
-    // --------- Assistant (Proposal-based) ----------
-    const assistantFab = document.getElementById("assistantFab");
-    const assistantPanel = document.getElementById("assistantPanel");
-    const assistantClose = document.getElementById("assistantClose");
-    const assistantBody = document.getElementById("assistantBody");
-    const assistantInput = document.getElementById("assistantInput");
-    const assistantSend = document.getElementById("assistantSend");
-    const assistantReviewBtn = document.getElementById("assistantReviewBtn");
-    const assistantApplyBtn = document.getElementById("assistantApplyBtn");
-    const assistantDiscardBtn = document.getElementById("assistantDiscardBtn");
-    const assistantUndoBtn = document.getElementById("assistantUndoBtn");
-
-    const proposalDialog = document.getElementById("proposalDialog");
-    const closeProposalDialog = document.getElementById("closeProposalDialog");
-    const proposalCancelBtn = document.getElementById("proposalCancelBtn");
-    const proposalApplyBtn = document.getElementById("proposalApplyBtn");
-    const proposalList = document.getElementById("proposalList");
-
-    // Configure your Worker endpoint (you will deploy it and paste the URL here)
-    const ASSISTANT_ENDPOINT_KEY = "private_bookmarks_assistant_endpoint_v1";
-    function getAssistantEndpoint(){
-      return localStorage.getItem(ASSISTANT_ENDPOINT_KEY) || "";
-    }
-    function setAssistantEndpoint(url){
-      localStorage.setItem(ASSISTANT_ENDPOINT_KEY, url || "");
-    }
-
-    // Undo stack (stores snapshots before applying proposals)
-    const undoStack = [];
-    function pushUndo(){
-      undoStack.push(JSON.stringify(state));
-      if(undoStack.length > 30) undoStack.shift();
-    }
-    function canUndo(){ return undoStack.length > 0; }
-    function doUndo(){
-      if(!canUndo()){
-        showToast("没有可撤回的变更");
+      if (text.startsWith("/endpoint")) {
+        endpoint = text.replace("/endpoint", "").trim();
+        localStorage.setItem("assistant_endpoint", endpoint);
+        addMsg("✅ 已设置助手后端地址。可以开始对话了。", "ai");
         return;
       }
-      try{
-        const prev = JSON.parse(undoStack.pop());
-        state = prev;
-        saveState();
-        render();
-        showToast("已撤回");
-      }catch(e){
-        showToast("撤回失败");
-      }
-    }
 
-    // Current proposal from assistant
-    let pendingProposal = null; // {summary, changes:[], note?}
-    let pendingChecked = null; // boolean[]
-
-    function addMsg(role, text){
-      const el = document.createElement("div");
-      el.className = "msg " + (role === "user" ? "user" : "assistant");
-      const b = document.createElement("div");
-      b.className = "bubble";
-      b.textContent = text;
-      el.appendChild(b);
-      assistantBody.appendChild(el);
-      assistantBody.scrollTop = assistantBody.scrollHeight;
-    }
-
-    function enableProposalActions(enabled){
-      assistantReviewBtn.disabled = !enabled;
-      assistantApplyBtn.disabled = !enabled;
-      assistantDiscardBtn.disabled = !enabled;
-    }
-
-    function discardProposal(){
-      pendingProposal = null;
-      pendingChecked = null;
-      enableProposalActions(false);
-      showToast("已丢弃提案");
-    }
-
-    function humanizeChange(ch){
-      const op = ch.op;
-      if(op === "addCategory") return `新增分类：${ch.name}`;
-      if(op === "renameCategory") return `分类改名：${ch.from} → ${ch.to}`;
-      if(op === "deleteCategory") return `删除分类：${ch.name}`;
-      if(op === "addSite") return `新增网站：${ch.name}（${ch.url}）→ 分类：${ch.category}`;
-      if(op === "updateSite") return `编辑网站：${ch.target}（改 ${Object.keys(ch.patch||{}).join(", ")}）`;
-      if(op === "deleteSite") return `删除网站：${ch.target}`;
-      if(op === "moveSite") return `移动网站：${ch.target} → 分类：${ch.toCategory}`;
-      return `变更：${op}`;
-    }
-
-    function openProposalDialog(){
-      if(!pendingProposal) return;
-      proposalList.innerHTML = "";
-      const changes = pendingProposal.changes || [];
-      pendingChecked = pendingChecked || changes.map(()=>true);
-
-      // summary
-      const summary = document.createElement("div");
-      summary.className = "proposal-card";
-      summary.innerHTML = `<strong>摘要</strong><div style="margin-top:6px;color:var(--muted)">${escapeHtml(pendingProposal.summary || "（无）")}</div>`;
-      proposalList.appendChild(summary);
-
-      changes.forEach((ch, idx)=>{
-        const box = document.createElement("div");
-        box.style.display = "flex";
-        box.style.gap = "10px";
-        box.style.alignItems = "flex-start";
-        box.style.padding = "10px";
-        box.style.borderRadius = "14px";
-        box.style.border = "1px solid rgba(255,255,255,.10)";
-        box.style.background = "rgba(255,255,255,.03)";
-
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.checked = !!pendingChecked[idx];
-        cb.style.width = "auto";
-        cb.onchange = ()=>{ pendingChecked[idx] = cb.checked; };
-
-        const txt = document.createElement("div");
-        txt.style.flex = "1";
-        txt.style.fontSize = "13px";
-        txt.style.lineHeight = "1.35";
-        txt.innerHTML = `<div>${escapeHtml(humanizeChange(ch))}</div>
-          <div style="margin-top:6px;color:var(--muted);font-family:var(--mono);font-size:11px;white-space:pre-wrap">${escapeHtml(JSON.stringify(ch, null, 2))}</div>`;
-
-        box.appendChild(cb);
-        box.appendChild(txt);
-        proposalList.appendChild(box);
-      });
-
-      proposalDialog.showModal();
-    }
-
-    closeProposalDialog.onclick = ()=> proposalDialog.close();
-    proposalCancelBtn.onclick = ()=> proposalDialog.close();
-
-    function findCategoryIdByName(name){
-      const c = state.categories.find(x => x.name === name);
-      return c ? c.id : null;
-    }
-    function ensureCategory(name){
-      let id = findCategoryIdByName(name);
-      if(id) return id;
-      const newCat = { id: uid(), name, collapsed:false };
-      state.categories.push(newCat);
-      return newCat.id;
-    }
-    function findSiteByNameOrUrl(target){
-      const t = (target||"").toLowerCase();
-      return state.sites.find(s => (s.name||"").toLowerCase() === t || (s.url||"").toLowerCase() === t) || null;
-    }
-
-    function applyOneChange(ch){
-      const op = ch.op;
-      if(op === "addCategory"){
-        ensureCategory(ch.name);
+      if (!endpoint) {
+        addMsg("⚠️ 请先设置 /endpoint", "ai");
         return;
       }
-      if(op === "renameCategory"){
-        const c = state.categories.find(x=>x.name===ch.from);
-        if(c) c.name = ch.to;
-        return;
-      }
-      if(op === "deleteCategory"){
-        const c = state.categories.find(x=>x.name===ch.name);
-        if(!c) return;
-        // delete sites in category too (consistent with UI)
-        state.sites = state.sites.filter(s=>s.catId!==c.id);
-        state.categories = state.categories.filter(x=>x.id!==c.id);
-        if(state.categories.length===0) state.categories.push({id: uid(), name:"默认", collapsed:false});
-        return;
-      }
-      if(op === "addSite"){
-        const catId = ensureCategory(ch.category || "默认");
-        const url = normalizeUrl(ch.url || "");
-        if(!url) return;
-        // de-dup by url
-        const exists = state.sites.find(s=>s.url===url);
-        if(exists){
-          // update existing
-          exists.name = ch.name || exists.name;
-          exists.desc = ch.desc || exists.desc;
-          exists.catId = catId;
-        }else{
-          state.sites.push({
-            id: uid(),
-            name: ch.name || "未命名",
-            url,
-            desc: ch.desc || "",
-            catId,
-            createdAt: Date.now()
-          });
-        }
-        return;
-      }
-      if(op === "updateSite"){
-        const s = findSiteByNameOrUrl(ch.target);
-        if(!s) return;
-        const p = ch.patch || {};
-        if(p.name !== undefined) s.name = p.name;
-        if(p.desc !== undefined) s.desc = p.desc;
-        if(p.url !== undefined) s.url = normalizeUrl(p.url);
-        if(p.category !== undefined){
-          s.catId = ensureCategory(p.category);
-        }
-        return;
-      }
-      if(op === "deleteSite"){
-        const s = findSiteByNameOrUrl(ch.target);
-        if(!s) return;
-        state.sites = state.sites.filter(x=>x.id!==s.id);
-        return;
-      }
-      if(op === "moveSite"){
-        const s = findSiteByNameOrUrl(ch.target);
-        if(!s) return;
-        s.catId = ensureCategory(ch.toCategory || "默认");
-        return;
-      }
-    }
 
-    function applyProposalSelected(){
-      if(!pendingProposal) return;
-      const changes = pendingProposal.changes || [];
-      const selected = changes.filter((_,i)=> pendingChecked ? pendingChecked[i] : true);
-      if(selected.length === 0){
-        showToast("未选择任何变更");
-        return;
-      }
-      pushUndo();
-      selected.forEach(ch=> applyOneChange(ch));
-      // Normalize & persist
-      saveState();
-      render();
-      showToast("已应用变更（可撤回）");
-      proposalDialog.close();
-      discardProposal();
-    }
-
-    proposalApplyBtn.onclick = applyProposalSelected;
-
-    assistantUndoBtn.onclick = doUndo;
-
-    assistantFab.onclick = ()=>{
-      assistantPanel.classList.toggle("show");
-      if(assistantPanel.classList.contains("show")){
-        // First time: ask for endpoint if not set
-        const ep = getAssistantEndpoint();
-        if(!ep){
-          addMsg("assistant", "你还没配置助手后端（Cloudflare Worker）。\n等你部署好 Worker，把它的 URL 填进来：\n在聊天框输入：/endpoint https://xxxx.workers.dev");
-        }
-        setTimeout(()=>assistantInput.focus(), 50);
-      }
-    };
-    assistantClose.onclick = ()=> assistantPanel.classList.remove("show");
-
-    assistantReviewBtn.onclick = openProposalDialog;
-    assistantApplyBtn.onclick = ()=>{ openProposalDialog(); };
-    assistantDiscardBtn.onclick = discardProposal;
-
-    function getStateForAssistant(){
-      // Send full state (works for personal-sized data). If it grows large, we can switch to a summarized view.
-      return state;
-    }
-
-    async function callAssistant(userText){
-      const ep = getAssistantEndpoint();
-      if(!ep){
-        addMsg("assistant", "还没设置后端 URL。\n请先输入：/endpoint https://你的worker域名");
-        return;
-      }
-      // Always POST to `${ep}/chat`
-      const url = ep.replace(/\/+$/,"") + "/chat";
-      const payload = { instruction: userText, state: getStateForAssistant() };
-
-      assistantSend.disabled = true;
-      try{
-        const res = await fetch(url, {
+      try {
+        const res = await fetch(endpoint + "/chat", {
           method: "POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
         });
-        if(!res.ok){
-          const t = await res.text();
-          addMsg("assistant", `请求失败：HTTP ${res.status}\n${t}`);
-          return;
-        }
         const data = await res.json();
-        // Expect: {summary, changes, assistant_message}
-        const msg = data.assistant_message || data.summary || "已生成提案。";
-        addMsg("assistant", msg);
-
-        if(Array.isArray(data.changes)){
-          pendingProposal = {
-            summary: data.summary || "（无摘要）",
-            changes: data.changes
-          };
-          pendingChecked = data.changes.map(()=>true);
-          enableProposalActions(true);
-          showToast("已收到变更提案（需你确认）");
-        }else{
-          enableProposalActions(false);
-        }
-      }catch(e){
-        addMsg("assistant", "请求失败：网络或后端错误。");
-      }finally{
-        assistantSend.disabled = false;
+        addMsg(data.reply || "（无返回）", "ai");
+      } catch (e) {
+        addMsg("❌ 无法连接到助手后端", "ai");
       }
     }
 
-    function handleAssistantCommand(text){
-      const t = text.trim();
-      if(t.startsWith("/endpoint")){
-        const parts = t.split(/\s+/);
-        const url = parts[1] || "";
-        if(!url || !/^https?:\/\//i.test(url)){
-          addMsg("assistant", "用法：/endpoint https://xxxx.workers.dev");
-          return true;
-        }
-        setAssistantEndpoint(url);
-        addMsg("assistant", "已保存后端地址。现在可以直接输入自然语言让我提出整理方案。");
-        return true;
-      }
-      return false;
-    }
-
-    assistantSend.onclick = ()=>{
-      const text = assistantInput.value.trim();
-      if(!text) return;
-      assistantInput.value = "";
-      addMsg("user", text);
-      if(handleAssistantCommand(text)) return;
-      callAssistant(text);
-    };
-
-    assistantInput.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter" && !e.shiftKey){
+    sendBtn.onclick = send;
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        assistantSend.click();
+        send();
       }
     });
-
-    // keyboard shortcuts
-    window.addEventListener("keydown", (e)=>{
-      if(e.key === "/" && document.activeElement !== q){
-        e.preventDefault();
-        q.focus();
-      }
-      if(e.key === "Escape"){
-        if(siteDialog.open) siteDialog.close();
-        else if(catDialog.open) catDialog.close();
-        else if(proposalDialog.open) proposalDialog.close();
-        else if(assistantPanel.classList.contains("show")) assistantPanel.classList.remove("show");
-        else{
-          q.value = "";
-          render();
-        }
-      }
-    });
-
-    // initial render
-    const initCfg = getGhCfg();
-    if(initCfg && initCfg.owner && initCfg.repo && initCfg.branch && initCfg.path){
-      setGhStatus("已配置（未同步）");
-      // Auto pull once on load if token exists (session or remembered)
-      const tok = getToken(initCfg);
-      if(tok){
-        ghPull().catch(()=>setGhStatus("同步失败"));
-      }else{
-        setGhStatus("缺少 token（点 GitHub 设置）");
-      }
-    }else{
-      setGhStatus("未配置");
-    }
-    render();
   </script>
 </body>
 </html>

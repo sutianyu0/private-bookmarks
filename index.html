@@ -648,6 +648,14 @@
       if(token) h["Authorization"] = "Bearer " + token;
       return h;
     }
+
+    // Base64 helpers that correctly preserve Unicode (e.g., Chinese)
+    function b64EncodeUnicode(str){
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    function b64DecodeUnicode(b64){
+      return decodeURIComponent(escape(atob(b64)));
+    }
     function setGhStatus(status, last=""){
       ghSyncState.status = status;
       ghSyncState.last = last;
@@ -688,7 +696,7 @@
       }
       const data = await res.json();
       ghRemoteSha = data.sha || null;
-      const content = data.content ? atob(data.content.replace(/\n/g,"")) : "";
+      const content = data.content ? b64DecodeUnicode(data.content.replace(/\n/g,"")) : "";
       let remoteState = null;
       try{ remoteState = JSON.parse(content); }catch(e){}
       if(!remoteState || !Array.isArray(remoteState.categories) || !Array.isArray(remoteState.sites)){
@@ -736,7 +744,7 @@
 
       const payload = {
         message: `Update bookmarks (${new Date().toISOString()})`,
-        content: btoa(unescape(encodeURIComponent(JSON.stringify(state, null, 2)))),
+        content: b64EncodeUnicode(JSON.stringify(state, null, 2)),
         branch: cfg.branch
       };
       if(ghRemoteSha && !isCreate) payload.sha = ghRemoteSha;

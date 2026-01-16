@@ -2,32 +2,32 @@
   "categories": [
     {
       "id": "grad-portal-2026",
-      "name": "ç ç©¶çç³è¯· Portalï¼2026 Fallï¼",
+      "name": "Ã§Â ÂÃ§Â©Â¶Ã§ÂÂÃ§ÂÂ³Ã¨Â¯Â· PortalÃ¯Â¼Â2026 FallÃ¯Â¼Â",
       "collapsed": false
     }
   ],
   "sites": [
     {
       "id": "uw-app",
-      "name": "University of Washington â Graduate Application",
+      "name": "University of Washington Ã¢ÂÂ Graduate Application",
       "url": "https://apply.grad.uw.edu/account/login",
-      "desc": "UW ç ç©¶çç³è¯·ç³»ç»ï¼æ¥çç¶æ / æäº¤ææï¼",
+      "desc": "UW Ã§Â ÂÃ§Â©Â¶Ã§ÂÂÃ§ÂÂ³Ã¨Â¯Â·Ã§Â³Â»Ã§Â»ÂÃ¯Â¼ÂÃ¦ÂÂ¥Ã§ÂÂÃ§ÂÂ¶Ã¦ÂÂ / Ã¦ÂÂÃ¤ÂºÂ¤Ã¦ÂÂÃ¦ÂÂÃ¯Â¼Â",
       "catId": "grad-portal-2026",
       "createdAt": 1760000000000
     },
     {
       "id": "columbia-sps-app",
-      "name": "Columbia SPS â Application Portal",
+      "name": "Columbia SPS Ã¢ÂÂ Application Portal",
       "url": "https://apply.sps.columbia.edu/account/login",
-      "desc": "å¥ä¼¦æ¯äºå¤§å­¦ SPS å­¦é¢ç ç©¶çç³è¯·ç³»ç»",
+      "desc": "Ã¥ÂÂ¥Ã¤Â¼Â¦Ã¦Â¯ÂÃ¤ÂºÂÃ¥Â¤Â§Ã¥Â­Â¦ SPS Ã¥Â­Â¦Ã©ÂÂ¢Ã§Â ÂÃ§Â©Â¶Ã§ÂÂÃ§ÂÂ³Ã¨Â¯Â·Ã§Â³Â»Ã§Â»Â",
       "catId": "grad-portal-2026",
       "createdAt": 1760000000001
     },
     {
       "id": "ucla-app",
-      "name": "UCLA â Graduate Application",
+      "name": "UCLA Ã¢ÂÂ Graduate Application",
       "url": "https://apply.grad.ucla.edu/account/login",
-      "desc": "UCLA ç ç©¶çç³è¯·ä¸æææäº¤å¥å£",
+      "desc": "UCLA Ã§Â ÂÃ§Â©Â¶Ã§ÂÂÃ§ÂÂ³Ã¨Â¯Â·Ã¤Â¸ÂÃ¦ÂÂÃ¦ÂÂÃ¦ÂÂÃ¤ÂºÂ¤Ã¥ÂÂ¥Ã¥ÂÂ£",
       "catId": "grad-portal-2026",
       "createdAt": 1760000000002
     }

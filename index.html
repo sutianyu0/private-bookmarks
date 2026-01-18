@@ -1,287 +1,638 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <title>我的私人书签页</title>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <title>私人导航门户 | AI Powered Dashboard</title>
   <style>
+    :root {
+      --bg: #050810;
+      --panel: rgba(17, 25, 40, 0.75);
+      --card: rgba(25, 35, 55, 0.6);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.5);
+      --ai-accent: #8b5cf6;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; transition: all 0.2s ease; }
+
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(120deg, #0f172a, #020617);
-      color: #e5e7eb;
-    }
-
-    header {
-      padding: 24px 32px;
-    }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: 28px;
-    }
-
-    .sub {
-      color: #94a3b8;
-      font-size: 14px;
-    }
-
-    .container {
-      padding: 0 32px 120px;
-    }
-
-    .category {
-      margin-top: 28px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    .category h2 {
-      margin: 0 0 16px;
-      font-size: 20px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      background: rgba(15,23,42,0.9);
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
+      color: var(--text);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
 
-    .card h3 {
-      margin: 0 0 6px;
-      font-size: 16px;
-    }
-
-    .card p {
-      margin: 0 0 12px;
-      font-size: 13px;
-      color: #cbd5f5;
-      line-height: 1.4;
-    }
-
-    .card a {
-      margin-top: auto;
-      display: inline-block;
-      text-align: center;
-      padding: 10px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #3b82f6, #22d3ee);
-      color: #020617;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    /* Assistant UI */
-    .assistant-btn {
+    #lock-screen {
       position: fixed;
-      right: 20px;
-      bottom: 20px;
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #22d3ee);
-      color: #020617;
-      font-size: 26px;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 12px 30px rgba(0,0,0,.4);
+      backdrop-filter: blur(20px);
+    }
+    .lock-box {
+      background: var(--panel);
+      padding: 40px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
     }
 
-    .assistant-panel {
-      position: fixed;
-      right: 20px;
-      bottom: 90px;
-      width: 360px;
-      max-height: 70vh;
-      background: rgba(2,6,23,0.98);
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.5);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      width: 100%;
     }
 
-    .assistant-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      font-weight: 600;
-    }
-
-    .assistant-messages {
-      padding: 14px;
-      overflow-y: auto;
-      flex: 1;
-      font-size: 14px;
-    }
-
-    .msg {
-      margin-bottom: 12px;
-      line-height: 1.4;
-    }
-
-    .msg.user {
-      color: #93c5fd;
-    }
-
-    .msg.ai {
-      color: #e5e7eb;
-    }
-
-    .assistant-input {
-      border-top: 1px solid rgba(255,255,255,.08);
+    header {
       display: flex;
-      gap: 8px;
-      padding: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
     }
 
-    .assistant-input textarea {
-      flex: 1;
-      resize: none;
-      border-radius: 10px;
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      background: linear-gradient(to right, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 99px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .search-bar input {
+      background: transparent;
       border: none;
-      padding: 8px 10px;
-      font-size: 14px;
+      color: white;
+      padding: 8px;
+      width: 100%;
       outline: none;
     }
 
-    .assistant-input button {
-      border: none;
-      border-radius: 10px;
-      padding: 0 14px;
-      font-weight: 600;
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 99px;
       cursor: pointer;
-      background: linear-gradient(135deg, #3b82f6, #22d3ee);
-      color: #020617;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    .btn:hover { background: var(--border); transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); }
+    .btn-ai { 
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); 
+        border: none;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    .btn-ai:hover { box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5); }
+
+    .category-section { margin-bottom: 40px; }
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .category-header h2 { font-size: 18px; margin: 0; font-weight: 500; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+    }
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .card-top { display: flex; align-items: center; gap: 12px; }
+    .favicon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .favicon img { width: 100%; height: 100%; object-fit: contain; }
+
+    .card-info { flex: 1; min-width: 0; }
+    .card-info h3 { margin: 0; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-info p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .card-actions {
+      position: absolute;
+      top: 10px; right: 10px;
+      display: flex; gap: 5px; opacity: 0;
+    }
+    .card:hover .card-actions { opacity: 1; }
+    .icon-btn {
+      background: rgba(0,0,0,0.3);
+      border: none; color: white;
+      width: 28px; height: 28px; border-radius: 6px;
+      cursor: pointer; display: grid; place-items: center;
+    }
+    .icon-btn:hover { background: var(--accent); }
+
+    dialog {
+      background: var(--panel);
+      color: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      width: 90%;
+      max-width: 500px;
+      backdrop-filter: blur(25px);
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+    dialog::backdrop { background: rgba(0,0,0,0.8); }
+    .form-group { margin-bottom: 20px; position: relative; }
+    .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); }
+    input, select, textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      color: white;
+      outline: none;
+    }
+    input:focus, textarea:focus { border-color: var(--accent); }
+
+    .ai-loading {
+        display: none;
+        font-size: 12px;
+        color: var(--ai-accent);
+        margin-top: 5px;
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      padding: 12px 24px;
+      border-radius: 99px;
+      font-size: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      z-index: 10000;
+      display: none;
+    }
+
+    .ai-btn-inline {
+        position: absolute;
+        right: 10px;
+        top: 35px;
+        background: var(--ai-accent);
+        border: none;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: stretch; }
+      .search-bar { max-width: none; }
     }
   </style>
 </head>
-
 <body>
-  <header>
-    <h1>我的私人书签页</h1>
-    <div class="sub">本地保存 · GitHub 同步 · AI 助手可协助整理（需确认）</div>
-  </header>
+
+  <div id="lock-screen" style="display: none;">
+    <div class="lock-box">
+      <h2>🔐 私人空间</h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">请输入访问密码</p>
+      <input type="password" id="unlock-pass" placeholder="••••••" style="text-align: center; font-size: 24px; letter-spacing: 4px;">
+      <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="checkUnlock()">进入网站</button>
+    </div>
+  </div>
 
   <div class="container">
-    <div class="category">
-      <h2>研究生申请 Portal（2026 Fall）</h2>
-      <div class="cards">
-        <div class="card">
-          <h3>Columbia SPS – Application Portal</h3>
-          <p>哥伦比亚大学 SPS 学院研究生申请系统</p>
-          <a href="https://apply.sps.columbia.edu/account/login" target="_blank">进入网站 ↗</a>
-        </div>
-
-        <div class="card">
-          <h3>UCLA – Graduate Application</h3>
-          <p>UCLA 研究生申请与材料提交入口</p>
-          <a href="https://apply.grad.ucla.edu/account/login" target="_blank">进入网站 ↗</a>
-        </div>
-
-        <div class="card">
-          <h3>University of Washington – Graduate Application</h3>
-          <p>UW 研究生申请系统（查看状态 / 提交材料）</p>
-          <a href="https://apply.grad.uw.edu/account/login" target="_blank">进入网站 ↗</a>
-        </div>
+    <header>
+      <div class="brand">
+        <h1>私人导航门户</h1>
       </div>
-    </div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="search-input" placeholder="搜索书签或分类...">
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="openSiteModal()">+ 网站</button>
+        <button class="btn" onclick="openCatModal()">+ 分类</button>
+        <button class="btn btn-ai" id="ai-tidy-btn" onclick="aiSmartTidy()">✨ AI 整理</button>
+        <button class="btn" onclick="aiRecommendation()">✨ AI 推荐</button>
+        <button class="btn" onclick="exportData()">💾 导出</button>
+        <button class="btn" onclick="document.getElementById('file-input').click()">📂 导入</button>
+        <button class="btn" onclick="toggleSettings()">⚙️ 设置</button>
+      </div>
+    </header>
+
+    <div id="main-content"></div>
   </div>
 
-  <!-- Assistant -->
-  <div class="assistant-btn" id="assistantBtn">🤖</div>
+  <input type="file" id="file-input" style="display: none;" onchange="importData(event)">
 
-  <div class="assistant-panel" id="assistantPanel">
-    <div class="assistant-header">书签 AI 助手</div>
-    <div class="assistant-messages" id="messages">
-      <div class="msg ai">
-        你好 👋<br/>
-        你可以用自然语言让我帮你整理、添加或重命名书签。<br/>
-        <br/>
-        第一次请先输入：<br/>
-        <code>/endpoint https://你的-worker.workers.dev</code>
+  <dialog id="site-dialog">
+    <h2 id="modal-title">添加书签</h2>
+    <form id="site-form" method="dialog">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label>名称</label>
+        <input type="text" id="site-name" required placeholder="例如: GitHub">
       </div>
+      <div class="form-group">
+        <label>链接 (URL)</label>
+        <input type="url" id="site-url" required placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label>分类</label>
+        <select id="site-cat"></select>
+      </div>
+      <div class="form-group">
+        <label>描述</label>
+        <button type="button" class="ai-btn-inline" onclick="generateAiDescription()">✨ 自动生成</button>
+        <textarea id="site-desc" rows="3"></textarea>
+        <div id="ai-desc-loader" class="ai-loading">AI 正在撰写描述...</div>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn" onclick="this.closest('dialog').close()">取消</button>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="cat-dialog">
+    <h2>管理分类</h2>
+    <form id="cat-form" method="dialog">
+      <input type="hidden" id="cat-edit-id">
+      <div class="form-group">
+        <label>分类名称</label>
+        <input type="text" id="cat-name" required>
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn" onclick="this.closest('dialog').close()">取消</button>
+        <button type="submit" class="btn btn-primary">确定</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="settings-dialog">
+    <h2>全局设置</h2>
+    <div class="form-group">
+      <label>设置访问密码 (留空则不启用)</label>
+      <input type="password" id="set-password" placeholder="设置新密码">
     </div>
-    <div class="assistant-input">
-      <textarea id="input" rows="2" placeholder="输入指令或问题，Enter 发送"></textarea>
-      <button id="sendBtn">发送</button>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button type="button" class="btn" onclick="saveSettings()">保存并关闭</button>
     </div>
-  </div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
 
   <script>
-    const btn = document.getElementById("assistantBtn");
-    const panel = document.getElementById("assistantPanel");
-    const input = document.getElementById("input");
-    const sendBtn = document.getElementById("sendBtn");
-    const messages = document.getElementById("messages");
+    const STORAGE_KEY = 'private_nav_data_ai';
+    const SETTINGS_KEY = 'private_nav_settings_ai';
+    const apiKey = ""; // 执行环境将提供此密钥
 
-    let endpoint = localStorage.getItem("assistant_endpoint") || "";
-
-    btn.onclick = () => {
-      panel.style.display = panel.style.display === "flex" ? "none" : "flex";
-      panel.style.flexDirection = "column";
-      input.focus();
+    let state = {
+      categories: [{id: '1', name: '常用'}, {id: '2', name: '学习'}, {id: '3', name: '娱乐'}],
+      sites: []
     };
 
-    function addMsg(text, cls) {
-      const div = document.createElement("div");
-      div.className = "msg " + cls;
-      div.innerHTML = text;
-      messages.appendChild(div);
-      messages.scrollTop = messages.scrollHeight;
+    let settings = { password: '' };
+
+    // --- Gemini API 封装 ---
+    async function callGemini(prompt, systemInstruction = "你是一个网页收藏助手。") {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        systemInstruction: { parts: [{ text: systemInstruction }] }
+      };
+
+      for (let i = 0; i < 5; i++) {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error('API Error');
+          const data = await response.json();
+          return data.candidates?.[0]?.content?.parts?.[0]?.text;
+        } catch (e) {
+          const delay = Math.pow(2, i) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+      throw new Error('AI 服务暂时不可用，请稍后再试');
     }
 
-    async function send() {
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = "";
-      addMsg(text, "user");
+    // --- AI 功能实现 ---
 
-      if (text.startsWith("/endpoint")) {
-        endpoint = text.replace("/endpoint", "").trim();
-        localStorage.setItem("assistant_endpoint", endpoint);
-        addMsg("✅ 已设置助手后端地址。可以开始对话了。", "ai");
+    async function generateAiDescription() {
+      const name = document.getElementById('site-name').value;
+      const url = document.getElementById('site-url').value;
+      const loader = document.getElementById('ai-desc-loader');
+      const textarea = document.getElementById('site-desc');
+
+      if (!name && !url) {
+        showToast("请至少填写名称或网址");
         return;
       }
 
-      if (!endpoint) {
-        addMsg("⚠️ 请先设置 /endpoint", "ai");
-        return;
-      }
-
+      loader.style.display = 'block';
       try {
-        const res = await fetch(endpoint + "/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text })
-        });
-        const data = await res.json();
-        addMsg(data.reply || "（无返回）", "ai");
+        const prompt = `请为这个网站写一段简短的中文描述（20-40字）：名称：${name}，网址：${url}。直接输出描述，不要加引号。`;
+        const result = await callGemini(prompt);
+        textarea.value = result.trim();
+        showToast("描述已生成");
       } catch (e) {
-        addMsg("❌ 无法连接到助手后端", "ai");
+        showToast(e.message);
+      } finally {
+        loader.style.display = 'none';
       }
     }
 
-    sendBtn.onclick = send;
-    input.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        send();
+    async function aiSmartTidy() {
+        if (state.sites.length === 0) {
+            showToast("还没有书签可以整理哦");
+            return;
+        }
+
+        showToast("AI 正在分析您的书签...");
+        try {
+            const categoriesInfo = state.categories.map(c => `${c.id}:${c.name}`).join(', ');
+            const sitesInfo = state.sites.map(s => `ID:${s.id}|名:${s.name}|URL:${s.url}`).join('\n');
+            
+            const prompt = `现有分类：[${categoriesInfo}]。
+            书签列表：
+            ${sitesInfo}
+            
+            请将书签归类到最合适的现有分类中。
+            按此JSON格式返回：{"assignments": [{"siteId": "xxx", "catId": "xxx"}]}`;
+            
+            const resultText = await callGemini(prompt, "你是一个数据分类专家，只返回JSON。");
+            const cleanJson = resultText.replace(/```json|```/g, '').trim();
+            const data = JSON.parse(cleanJson);
+            
+            data.assignments.forEach(task => {
+                const site = state.sites.find(s => s.id === task.siteId);
+                if (site) site.catId = task.catId;
+            });
+            
+            save();
+            showToast("✨ AI 已为您整理完毕");
+        } catch (e) {
+            showToast("智能整理失败: " + e.message);
+        }
+    }
+
+    async function aiRecommendation() {
+        showToast("AI 正在根据您的收藏为您搜索推荐...");
+        try {
+            const currentSites = state.sites.slice(-5).map(s => s.name).join(', ');
+            const prompt = `我最近收藏了这些网站：${currentSites}。请推荐3个我可能感兴趣的其他网站。
+            输出格式：网站名称 - 简短推荐语 - URL`;
+            
+            const result = await callGemini(prompt, "你是一个网页发现专家。使用Google搜索获取最新信息。");
+            alert("✨ AI 为您推荐：\n\n" + result);
+        } catch (e) {
+            showToast("获取推荐失败");
+        }
+    }
+
+    // --- 核心逻辑 (保持原有逻辑并略作调整) ---
+
+    function init() {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) state = JSON.parse(savedData);
+      const savedSettings = localStorage.getItem(SETTINGS_KEY);
+      if (savedSettings) settings = JSON.parse(savedSettings);
+
+      if (settings.password) {
+        document.getElementById('lock-screen').style.display = 'flex';
       }
-    });
+      render();
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+    }
+
+    function render() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const container = document.getElementById('main-content');
+      container.innerHTML = '';
+
+      state.categories.forEach(cat => {
+        const catSites = state.sites.filter(s => s.catId === cat.id && 
+          (s.name.toLowerCase().includes(searchTerm) || s.url.toLowerCase().includes(searchTerm)));
+
+        if (catSites.length === 0 && searchTerm) return;
+
+        const section = document.createElement('div');
+        section.className = 'category-section';
+        section.innerHTML = `
+          <div class="category-header">
+            <h2>${cat.name}</h2>
+            <span style="font-size:12px; color:var(--text-muted)">${catSites.length}</span>
+            <button class="icon-btn" onclick="deleteCat('${cat.id}')" style="margin-left:auto; opacity:0.3">🗑</button>
+          </div>
+          <div class="grid" id="grid-${cat.id}"></div>
+        `;
+        
+        container.appendChild(section);
+        const grid = document.getElementById(`grid-${cat.id}`);
+
+        catSites.forEach(site => {
+          let hostname = "unknown";
+          try { hostname = new URL(site.url).hostname; } catch(e) {}
+          const faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+          
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="card-actions">
+              <button class="icon-btn" onclick="event.preventDefault(); editSite('${site.id}')">✎</button>
+              <button class="icon-btn" onclick="event.preventDefault(); deleteSite('${site.id}')">🗑</button>
+            </div>
+            <div class="card-top">
+              <div class="favicon"><img src="${faviconUrl}" onerror="this.src='https://ui-avatars.com/api/?name=${site.name}'"></div>
+              <div class="card-info">
+                <h3>${site.name}</h3>
+                <p title="${site.url}">${hostname}</p>
+              </div>
+            </div>
+            ${site.desc ? `<p style="font-size:12px; color:var(--text-muted); margin:0; line-height:1.4">${site.desc}</p>` : ''}
+            <a href="${site.url}" target="_blank" style="position:absolute; inset:0; z-index:1"></a>
+          `;
+          grid.appendChild(card);
+        });
+      });
+    }
+
+    // 事件监听与常用函数
+    function checkUnlock() {
+      const input = document.getElementById('unlock-pass').value;
+      if (input === settings.password) {
+        document.getElementById('lock-screen').style.opacity = '0';
+        setTimeout(() => document.getElementById('lock-screen').style.display = 'none', 300);
+      } else { showToast('密码错误'); }
+    }
+
+    function openSiteModal(siteId = null) {
+      const dialog = document.getElementById('site-dialog');
+      const catSelect = document.getElementById('site-cat');
+      catSelect.innerHTML = state.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      
+      if (siteId) {
+        const site = state.sites.find(s => s.id === siteId);
+        document.getElementById('edit-id').value = site.id;
+        document.getElementById('site-name').value = site.name;
+        document.getElementById('site-url').value = site.url;
+        document.getElementById('site-cat').value = site.catId;
+        document.getElementById('site-desc').value = site.desc || '';
+        document.getElementById('modal-title').textContent = '编辑书签';
+      } else {
+        document.getElementById('site-form').reset();
+        document.getElementById('edit-id').value = '';
+        document.getElementById('modal-title').textContent = '添加书签';
+      }
+      dialog.showModal();
+    }
+
+    document.getElementById('site-form').onsubmit = function() {
+      const id = document.getElementById('edit-id').value;
+      const site = {
+        id: id || Date.now().toString(),
+        name: document.getElementById('site-name').value,
+        url: document.getElementById('site-url').value,
+        catId: document.getElementById('site-cat').value,
+        desc: document.getElementById('site-desc').value
+      };
+      if (id) {
+        const idx = state.sites.findIndex(s => s.id === id);
+        state.sites[idx] = site;
+      } else { state.sites.push(site); }
+      save();
+    };
+
+    function deleteSite(id) {
+      if (confirm('删除该书签？')) { state.sites = state.sites.filter(s => s.id !== id); save(); }
+    }
+
+    function editSite(id) { openSiteModal(id); }
+
+    function openCatModal() { document.getElementById('cat-dialog').showModal(); }
+    document.getElementById('cat-form').onsubmit = function() {
+      state.categories.push({ id: Date.now().toString(), name: document.getElementById('cat-name').value });
+      save();
+    };
+
+    function deleteCat(id) {
+      if (state.sites.some(s => s.catId === id)) return alert('请先清空此分类下的书签');
+      if (confirm('删除分类？')) { state.categories = state.categories.filter(c => c.id !== id); save(); }
+    }
+
+    function toggleSettings() {
+      document.getElementById('set-password').value = settings.password;
+      document.getElementById('settings-dialog').showModal();
+    }
+
+    function saveSettings() {
+      settings.password = document.getElementById('set-password').value;
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      document.getElementById('settings-dialog').close();
+      showToast('设置已保存');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 3000);
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state)], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `bookmarks_ai_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    async function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        state = JSON.parse(await file.text());
+        save();
+        showToast('导入成功');
+      } catch (err) { showToast('导入失败'); }
+    }
+
+    document.getElementById('search-input').oninput = render;
+
+    init();
   </script>
 </body>
 </html>

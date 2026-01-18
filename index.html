@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>私人导航门户 | AI Powered Dashboard</title>
+  <title>私人导航门户 | AI Agent Dashboard</title>
   <style>
     :root {
       --bg: #050810;
@@ -35,25 +35,7 @@
       flex-direction: column;
     }
 
-    #lock-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(20px);
-    }
-    .lock-box {
-      background: var(--panel);
-      padding: 40px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-    }
-
+    /* 布局容器 */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -109,167 +91,100 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      user-select: none;
     }
     .btn:hover { background: var(--border); transform: translateY(-2px); }
-    .btn:active { transform: translateY(0); }
     .btn-primary { background: var(--accent); border-color: var(--accent); }
-    .btn-ai { 
-        background: linear-gradient(135deg, #6366f1, #8b5cf6); 
-        border: none;
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-    }
-    .btn-ai:hover { box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5); }
+    .btn-ai { background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; }
 
+    /* 侧边 AI 助手 */
+    #ai-assistant-toggle {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 60px;
+        height: 60px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.5);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        z-index: 1000;
+        font-size: 24px;
+    }
+    #ai-assistant-toggle:hover { transform: scale(1.1) rotate(5deg); }
+
+    #ai-drawer {
+        position: fixed;
+        top: 0;
+        right: -400px;
+        width: 380px;
+        height: 100vh;
+        background: rgba(10, 15, 30, 0.95);
+        backdrop-filter: blur(25px);
+        border-left: 1px solid var(--border);
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #ai-drawer.open { right: 0; }
+
+    .ai-header { padding: 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .ai-chat { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+    .ai-msg { padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.5; max-width: 85%; }
+    .ai-msg.user { background: var(--border); align-self: flex-end; }
+    .ai-msg.bot { background: var(--panel); border: 1px solid var(--border); align-self: flex-start; }
+
+    .ai-preview-box {
+        margin-top: 10px;
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px dashed var(--ai-accent);
+        border-radius: 12px;
+        padding: 12px;
+    }
+    .ai-preview-item { font-size: 12px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+
+    .ai-input-area { padding: 20px; border-top: 1px solid var(--border); }
+    .ai-input-wrapper { display: flex; gap: 10px; }
+    #ai-text-input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: white; resize: none; }
+
+    /* 网格与卡片 */
     .category-section { margin-bottom: 40px; }
-    .category-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
-    .category-header h2 { font-size: 18px; margin: 0; font-weight: 500; }
+    .category-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: relative; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 12px; backdrop-filter: blur(10px); }
+    .card:hover { border-color: var(--accent); transform: translateY(-5px); }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      position: relative;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      backdrop-filter: blur(10px);
-    }
-    .card:hover {
-      border-color: var(--accent);
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-    }
-
-    .card-top { display: flex; align-items: center; gap: 12px; }
-    .favicon {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: var(--bg);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
+    .favicon { width: 32px; height: 32px; border-radius: 8px; background: var(--bg); display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .favicon img { width: 100%; height: 100%; object-fit: contain; }
 
-    .card-info { flex: 1; min-width: 0; }
-    .card-info h3 { margin: 0; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-info p { margin: 4px 0 0; font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-    .card-actions {
-      position: absolute;
-      top: 10px; right: 10px;
-      display: flex; gap: 5px; opacity: 0;
-    }
-    .card:hover .card-actions { opacity: 1; }
-    .icon-btn {
-      background: rgba(0,0,0,0.3);
-      border: none; color: white;
-      width: 28px; height: 28px; border-radius: 6px;
-      cursor: pointer; display: grid; place-items: center;
-    }
-    .icon-btn:hover { background: var(--accent); }
-
-    dialog {
-      background: var(--panel);
-      color: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 30px;
-      width: 90%;
-      max-width: 500px;
-      backdrop-filter: blur(25px);
-      box-shadow: 0 0 40px rgba(0,0,0,0.5);
-    }
+    /* 通用弹窗 */
+    dialog { background: var(--panel); color: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px; width: 90%; max-width: 500px; backdrop-filter: blur(25px); }
     dialog::backdrop { background: rgba(0,0,0,0.8); }
-    .form-group { margin-bottom: 20px; position: relative; }
-    .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); }
-    input, select, textarea {
-      width: 100%;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--border);
-      padding: 12px;
-      border-radius: 8px;
-      color: white;
-      outline: none;
-    }
-    input:focus, textarea:focus { border-color: var(--accent); }
+    .form-group { margin-bottom: 20px; }
+    input, select, textarea { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); padding: 12px; border-radius: 8px; color: white; outline: none; }
 
-    .ai-loading {
-        display: none;
-        font-size: 12px;
-        color: var(--ai-accent);
-        margin-top: 5px;
-        animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--accent); padding: 12px 24px; border-radius: 99px; font-size: 14px; z-index: 10000; display: none; }
 
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent);
-      padding: 12px 24px;
-      border-radius: 99px;
-      font-size: 14px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-      z-index: 10000;
-      display: none;
-    }
-
-    .ai-btn-inline {
-        position: absolute;
-        right: 10px;
-        top: 35px;
-        background: var(--ai-accent);
-        border: none;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 11px;
-        cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      header { flex-direction: column; align-items: stretch; }
-      .search-bar { max-width: none; }
-    }
+    @keyframes spin { from {transform: rotate(0deg)} to {transform: rotate(360deg)} }
+    .loading-icon { animation: spin 1s linear infinite; }
   </style>
 </head>
 <body>
 
+  <!-- 访问锁 -->
   <div id="lock-screen" style="display: none;">
     <div class="lock-box">
       <h2>🔐 私人空间</h2>
-      <p style="color: var(--text-muted); margin-bottom: 20px;">请输入访问密码</p>
-      <input type="password" id="unlock-pass" placeholder="••••••" style="text-align: center; font-size: 24px; letter-spacing: 4px;">
+      <input type="password" id="unlock-pass" placeholder="请输入密码" style="text-align: center; font-size: 24px;">
       <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="checkUnlock()">进入网站</button>
     </div>
   </div>
 
   <div class="container">
     <header>
-      <div class="brand">
-        <h1>私人导航门户</h1>
-      </div>
+      <div class="brand"><h1>私人导航门户</h1></div>
       <div class="search-bar">
         <span>🔍</span>
         <input type="text" id="search-input" placeholder="搜索书签或分类...">
@@ -277,41 +192,51 @@
       <div class="actions">
         <button class="btn btn-primary" onclick="openSiteModal()">+ 网站</button>
         <button class="btn" onclick="openCatModal()">+ 分类</button>
-        <button class="btn btn-ai" id="ai-tidy-btn" onclick="aiSmartTidy()">✨ AI 整理</button>
-        <button class="btn" onclick="aiRecommendation()">✨ AI 推荐</button>
         <button class="btn" onclick="exportData()">💾 导出</button>
         <button class="btn" onclick="document.getElementById('file-input').click()">📂 导入</button>
-        <button class="btn" onclick="toggleSettings()">⚙️ 设置</button>
       </div>
     </header>
 
     <div id="main-content"></div>
   </div>
 
-  <input type="file" id="file-input" style="display: none;" onchange="importData(event)">
+  <!-- AI 侧边助手 -->
+  <div id="ai-assistant-toggle" onclick="toggleAiDrawer()">🤖</div>
+  <div id="ai-drawer">
+    <div class="ai-header">
+      <h3 style="margin:0">✨ AI 助手</h3>
+      <button class="icon-btn" onclick="toggleAiDrawer()">✕</button>
+    </div>
+    <div class="ai-chat" id="ai-chat-history">
+      <div class="ai-msg bot">你好！我是你的私人书签管家。你可以跟我说：<br>“帮我建一个‘设计’分类，里面加上 Pinterest 和 Dribbble。”<br>我会先为你准备好预览，确认后再执行。</div>
+    </div>
+    <div id="ai-pending-plan" style="padding: 0 20px; display:none;">
+        <div class="ai-preview-box">
+            <strong style="font-size: 13px; color: var(--ai-accent);">📋 待确认操作清单：</strong>
+            <div id="plan-details" style="margin: 10px 0;"></div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="applyAiPlan()">确认执行</button>
+                <button class="btn" style="padding: 6px 12px; font-size: 12px;" onclick="discardAiPlan()">取消</button>
+            </div>
+        </div>
+    </div>
+    <div class="ai-input-area">
+      <div class="ai-input-wrapper">
+        <textarea id="ai-text-input" rows="2" placeholder="输入指令..."></textarea>
+        <button class="btn btn-ai" id="ai-send-btn" onclick="handleAiCommand()">发送</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- 弹窗组件 -->
   <dialog id="site-dialog">
     <h2 id="modal-title">添加书签</h2>
     <form id="site-form" method="dialog">
       <input type="hidden" id="edit-id">
-      <div class="form-group">
-        <label>名称</label>
-        <input type="text" id="site-name" required placeholder="例如: GitHub">
-      </div>
-      <div class="form-group">
-        <label>链接 (URL)</label>
-        <input type="url" id="site-url" required placeholder="https://...">
-      </div>
-      <div class="form-group">
-        <label>分类</label>
-        <select id="site-cat"></select>
-      </div>
-      <div class="form-group">
-        <label>描述</label>
-        <button type="button" class="ai-btn-inline" onclick="generateAiDescription()">✨ 自动生成</button>
-        <textarea id="site-desc" rows="3"></textarea>
-        <div id="ai-desc-loader" class="ai-loading">AI 正在撰写描述...</div>
-      </div>
+      <div class="form-group"><input type="text" id="site-name" required placeholder="网站名"></div>
+      <div class="form-group"><input type="url" id="site-url" required placeholder="https://..."></div>
+      <div class="form-group"><select id="site-cat"></select></div>
+      <div class="form-group"><textarea id="site-desc" rows="2" placeholder="描述"></textarea></div>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
         <button type="button" class="btn" onclick="this.closest('dialog').close()">取消</button>
         <button type="submit" class="btn btn-primary">保存</button>
@@ -322,11 +247,7 @@
   <dialog id="cat-dialog">
     <h2>管理分类</h2>
     <form id="cat-form" method="dialog">
-      <input type="hidden" id="cat-edit-id">
-      <div class="form-group">
-        <label>分类名称</label>
-        <input type="text" id="cat-name" required>
-      </div>
+      <div class="form-group"><input type="text" id="cat-name" required placeholder="分类名"></div>
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
         <button type="button" class="btn" onclick="this.closest('dialog').close()">取消</button>
         <button type="submit" class="btn btn-primary">确定</button>
@@ -334,142 +255,140 @@
     </form>
   </dialog>
 
-  <dialog id="settings-dialog">
-    <h2>全局设置</h2>
-    <div class="form-group">
-      <label>设置访问密码 (留空则不启用)</label>
-      <input type="password" id="set-password" placeholder="设置新密码">
-    </div>
-    <div style="display: flex; gap: 10px; justify-content: flex-end;">
-      <button type="button" class="btn" onclick="saveSettings()">保存并关闭</button>
-    </div>
-  </dialog>
-
+  <input type="file" id="file-input" style="display: none;" onchange="importData(event)">
   <div id="toast" class="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'private_nav_data_ai';
-    const SETTINGS_KEY = 'private_nav_settings_ai';
-    const apiKey = ""; // 执行环境将提供此密钥
+    const STORAGE_KEY = 'private_nav_data_v2';
+    const apiKey = ""; 
 
     let state = {
-      categories: [{id: '1', name: '常用'}, {id: '2', name: '学习'}, {id: '3', name: '娱乐'}],
+      categories: [{id: '1', name: '常用'}],
       sites: []
     };
+    let pendingPlan = null;
 
-    let settings = { password: '' };
-
-    // --- Gemini API 封装 ---
-    async function callGemini(prompt, systemInstruction = "你是一个网页收藏助手。") {
+    // --- Gemini API ---
+    async function callGemini(prompt, systemInstruction) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
       const payload = {
         contents: [{ parts: [{ text: prompt }] }],
         systemInstruction: { parts: [{ text: systemInstruction }] }
       };
-
       for (let i = 0; i < 5; i++) {
         try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if (!response.ok) throw new Error('API Error');
-          const data = await response.json();
+          const resp = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
+          if (!resp.ok) throw new Error();
+          const data = await resp.json();
           return data.candidates?.[0]?.content?.parts?.[0]?.text;
-        } catch (e) {
-          const delay = Math.pow(2, i) * 1000;
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
+        } catch (e) { await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000)); }
       }
-      throw new Error('AI 服务暂时不可用，请稍后再试');
+      throw new Error('AI 连接失败');
     }
 
-    // --- AI 功能实现 ---
+    // --- AI 指令逻辑 ---
+    async function handleAiCommand() {
+        const inputEl = document.getElementById('ai-text-input');
+        const text = inputEl.value.trim();
+        if (!text) return;
 
-    async function generateAiDescription() {
-      const name = document.getElementById('site-name').value;
-      const url = document.getElementById('site-url').value;
-      const loader = document.getElementById('ai-desc-loader');
-      const textarea = document.getElementById('site-desc');
+        addChatMessage('user', text);
+        inputEl.value = '';
+        document.getElementById('ai-send-btn').disabled = true;
+        document.getElementById('ai-send-btn').innerHTML = '<span class="loading-icon">⏳</span>';
 
-      if (!name && !url) {
-        showToast("请至少填写名称或网址");
-        return;
-      }
+        const sysPrompt = `你是一个私人书签管家助手。用户的当前分类有：${state.categories.map(c => c.name).join(', ')}。
+        你的任务是理解用户的操作请求（创建分类、添加书签）。
+        你必须严格按照以下 JSON 格式返回，不要包含任何多余文字：
+        {
+          "reply": "对用户说的话",
+          "actions": [
+            {"type": "create_category", "name": "分类名"},
+            {"type": "add_site", "name": "网站名", "url": "网址", "category": "分类名", "desc": "可选描述"}
+          ]
+        }`;
 
-      loader.style.display = 'block';
-      try {
-        const prompt = `请为这个网站写一段简短的中文描述（20-40字）：名称：${name}，网址：${url}。直接输出描述，不要加引号。`;
-        const result = await callGemini(prompt);
-        textarea.value = result.trim();
-        showToast("描述已生成");
-      } catch (e) {
-        showToast(e.message);
-      } finally {
-        loader.style.display = 'none';
-      }
-    }
-
-    async function aiSmartTidy() {
-        if (state.sites.length === 0) {
-            showToast("还没有书签可以整理哦");
-            return;
-        }
-
-        showToast("AI 正在分析您的书签...");
         try {
-            const categoriesInfo = state.categories.map(c => `${c.id}:${c.name}`).join(', ');
-            const sitesInfo = state.sites.map(s => `ID:${s.id}|名:${s.name}|URL:${s.url}`).join('\n');
+            const responseText = await callGemini(text, sysPrompt);
+            const cleanJson = responseText.replace(/```json|```/g, '').trim();
+            const result = JSON.parse(cleanJson);
             
-            const prompt = `现有分类：[${categoriesInfo}]。
-            书签列表：
-            ${sitesInfo}
-            
-            请将书签归类到最合适的现有分类中。
-            按此JSON格式返回：{"assignments": [{"siteId": "xxx", "catId": "xxx"}]}`;
-            
-            const resultText = await callGemini(prompt, "你是一个数据分类专家，只返回JSON。");
-            const cleanJson = resultText.replace(/```json|```/g, '').trim();
-            const data = JSON.parse(cleanJson);
-            
-            data.assignments.forEach(task => {
-                const site = state.sites.find(s => s.id === task.siteId);
-                if (site) site.catId = task.catId;
-            });
-            
-            save();
-            showToast("✨ AI 已为您整理完毕");
+            addChatMessage('bot', result.reply);
+            if (result.actions && result.actions.length > 0) {
+                showPlanPreview(result.actions);
+            }
         } catch (e) {
-            showToast("智能整理失败: " + e.message);
+            addChatMessage('bot', "抱歉，我没能理解这个指令或发生了错误。");
+        } finally {
+            document.getElementById('ai-send-btn').disabled = false;
+            document.getElementById('ai-send-btn').innerText = '发送';
         }
     }
 
-    async function aiRecommendation() {
-        showToast("AI 正在根据您的收藏为您搜索推荐...");
-        try {
-            const currentSites = state.sites.slice(-5).map(s => s.name).join(', ');
-            const prompt = `我最近收藏了这些网站：${currentSites}。请推荐3个我可能感兴趣的其他网站。
-            输出格式：网站名称 - 简短推荐语 - URL`;
-            
-            const result = await callGemini(prompt, "你是一个网页发现专家。使用Google搜索获取最新信息。");
-            alert("✨ AI 为您推荐：\n\n" + result);
-        } catch (e) {
-            showToast("获取推荐失败");
-        }
+    function showPlanPreview(actions) {
+        pendingPlan = actions;
+        const planBox = document.getElementById('ai-pending-plan');
+        const details = document.getElementById('plan-details');
+        details.innerHTML = actions.map(a => {
+            if (a.type === 'create_category') return `<div class="ai-preview-item">📁 新建分类: <b>${a.name}</b></div>`;
+            if (a.type === 'add_site') return `<div class="ai-preview-item">🔗 添加书签: <b>${a.name}</b> (${a.category})</div>`;
+            return '';
+        }).join('');
+        planBox.style.display = 'block';
+        document.getElementById('ai-chat-history').scrollTop = document.getElementById('ai-chat-history').scrollHeight;
     }
 
-    // --- 核心逻辑 (保持原有逻辑并略作调整) ---
+    function applyAiPlan() {
+        if (!pendingPlan) return;
+        
+        pendingPlan.forEach(action => {
+            if (action.type === 'create_category') {
+                if (!state.categories.find(c => c.name === action.name)) {
+                    state.categories.push({ id: Date.now().toString() + Math.random(), name: action.name });
+                }
+            } else if (action.type === 'add_site') {
+                let cat = state.categories.find(c => c.name === action.category);
+                if (!cat) {
+                    cat = { id: Date.now().toString() + Math.random(), name: action.category };
+                    state.categories.push(cat);
+                }
+                state.sites.push({
+                    id: Date.now().toString() + Math.random(),
+                    name: action.name,
+                    url: action.url.startsWith('http') ? action.url : 'https://' + action.url,
+                    catId: cat.id,
+                    desc: action.desc || ""
+                });
+            }
+        });
 
+        save();
+        discardAiPlan();
+        showToast("✨ 指令执行成功！");
+    }
+
+    function discardAiPlan() {
+        pendingPlan = null;
+        document.getElementById('ai-pending-plan').style.display = 'none';
+    }
+
+    function addChatMessage(role, text) {
+        const history = document.getElementById('ai-chat-history');
+        const msg = document.createElement('div');
+        msg.className = `ai-msg ${role}`;
+        msg.innerHTML = text.replace(/\n/g, '<br>');
+        history.appendChild(msg);
+        history.scrollTop = history.scrollHeight;
+    }
+
+    function toggleAiDrawer() {
+        document.getElementById('ai-drawer').classList.toggle('open');
+    }
+
+    // --- 核心业务逻辑 ---
     function init() {
-      const savedData = localStorage.getItem(STORAGE_KEY);
-      if (savedData) state = JSON.parse(savedData);
-      const savedSettings = localStorage.getItem(SETTINGS_KEY);
-      if (savedSettings) settings = JSON.parse(savedSettings);
-
-      if (settings.password) {
-        document.getElementById('lock-screen').style.display = 'flex';
-      }
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) state = JSON.parse(data);
       render();
     }
 
@@ -494,20 +413,17 @@
         section.innerHTML = `
           <div class="category-header">
             <h2>${cat.name}</h2>
-            <span style="font-size:12px; color:var(--text-muted)">${catSites.length}</span>
             <button class="icon-btn" onclick="deleteCat('${cat.id}')" style="margin-left:auto; opacity:0.3">🗑</button>
           </div>
           <div class="grid" id="grid-${cat.id}"></div>
         `;
-        
         container.appendChild(section);
         const grid = document.getElementById(`grid-${cat.id}`);
 
         catSites.forEach(site => {
-          let hostname = "unknown";
+          let hostname = "link";
           try { hostname = new URL(site.url).hostname; } catch(e) {}
           const faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
-          
           const card = document.createElement('div');
           card.className = 'card';
           card.innerHTML = `
@@ -519,10 +435,10 @@
               <div class="favicon"><img src="${faviconUrl}" onerror="this.src='https://ui-avatars.com/api/?name=${site.name}'"></div>
               <div class="card-info">
                 <h3>${site.name}</h3>
-                <p title="${site.url}">${hostname}</p>
+                <p>${hostname}</p>
               </div>
             </div>
-            ${site.desc ? `<p style="font-size:12px; color:var(--text-muted); margin:0; line-height:1.4">${site.desc}</p>` : ''}
+            ${site.desc ? `<p style="font-size:12px; color:var(--text-muted); margin:0;">${site.desc}</p>` : ''}
             <a href="${site.url}" target="_blank" style="position:absolute; inset:0; z-index:1"></a>
           `;
           grid.appendChild(card);
@@ -530,33 +446,19 @@
       });
     }
 
-    // 事件监听与常用函数
-    function checkUnlock() {
-      const input = document.getElementById('unlock-pass').value;
-      if (input === settings.password) {
-        document.getElementById('lock-screen').style.opacity = '0';
-        setTimeout(() => document.getElementById('lock-screen').style.display = 'none', 300);
-      } else { showToast('密码错误'); }
-    }
-
+    // --- 弹窗与基础操作 ---
     function openSiteModal(siteId = null) {
       const dialog = document.getElementById('site-dialog');
       const catSelect = document.getElementById('site-cat');
       catSelect.innerHTML = state.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-      
       if (siteId) {
-        const site = state.sites.find(s => s.id === siteId);
-        document.getElementById('edit-id').value = site.id;
-        document.getElementById('site-name').value = site.name;
-        document.getElementById('site-url').value = site.url;
-        document.getElementById('site-cat').value = site.catId;
-        document.getElementById('site-desc').value = site.desc || '';
-        document.getElementById('modal-title').textContent = '编辑书签';
-      } else {
-        document.getElementById('site-form').reset();
-        document.getElementById('edit-id').value = '';
-        document.getElementById('modal-title').textContent = '添加书签';
-      }
+        const s = state.sites.find(x => x.id === siteId);
+        document.getElementById('edit-id').value = s.id;
+        document.getElementById('site-name').value = s.name;
+        document.getElementById('site-url').value = s.url;
+        document.getElementById('site-cat').value = s.catId;
+        document.getElementById('site-desc').value = s.desc || '';
+      } else { document.getElementById('site-form').reset(); document.getElementById('edit-id').value = ''; }
       dialog.showModal();
     }
 
@@ -569,18 +471,10 @@
         catId: document.getElementById('site-cat').value,
         desc: document.getElementById('site-desc').value
       };
-      if (id) {
-        const idx = state.sites.findIndex(s => s.id === id);
-        state.sites[idx] = site;
-      } else { state.sites.push(site); }
+      if (id) { const idx = state.sites.findIndex(s => s.id === id); state.sites[idx] = site; }
+      else { state.sites.push(site); }
       save();
     };
-
-    function deleteSite(id) {
-      if (confirm('删除该书签？')) { state.sites = state.sites.filter(s => s.id !== id); save(); }
-    }
-
-    function editSite(id) { openSiteModal(id); }
 
     function openCatModal() { document.getElementById('cat-dialog').showModal(); }
     document.getElementById('cat-form').onsubmit = function() {
@@ -588,50 +482,19 @@
       save();
     };
 
-    function deleteCat(id) {
-      if (state.sites.some(s => s.catId === id)) return alert('请先清空此分类下的书签');
-      if (confirm('删除分类？')) { state.categories = state.categories.filter(c => c.id !== id); save(); }
-    }
-
-    function toggleSettings() {
-      document.getElementById('set-password').value = settings.password;
-      document.getElementById('settings-dialog').showModal();
-    }
-
-    function saveSettings() {
-      settings.password = document.getElementById('set-password').value;
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-      document.getElementById('settings-dialog').close();
-      showToast('设置已保存');
-    }
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.style.display = 'block';
-      setTimeout(() => t.style.display = 'none', 3000);
-    }
-
+    function deleteSite(id) { if (confirm('删除书签？')) { state.sites = state.sites.filter(s => s.id !== id); save(); } }
+    function editSite(id) { openSiteModal(id); }
+    function deleteCat(id) { if (confirm('删除分类？')) { state.categories = state.categories.filter(c => c.id !== id); save(); } }
+    function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3000); }
     function exportData() {
       const blob = new Blob([JSON.stringify(state)], {type: 'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `bookmarks_ai_${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'bookmarks_agent.json'; a.click();
     }
-
     async function importData(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      try {
-        state = JSON.parse(await file.text());
-        save();
-        showToast('导入成功');
-      } catch (err) { showToast('导入失败'); }
+      try { state = JSON.parse(await e.target.files[0].text()); save(); showToast('导入成功'); } catch (err) { showToast('格式错误'); }
     }
 
     document.getElementById('search-input').oninput = render;
-
     init();
   </script>
 </body>
